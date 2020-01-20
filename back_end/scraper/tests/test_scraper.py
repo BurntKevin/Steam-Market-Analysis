@@ -2,14 +2,12 @@
 Tests scraper functions
 """
 # Support libraries
-from os import remove # Cleanup files
 import sys # To get custom libraries
 
 # Library to test
 sys.path.insert(0, "../library")
-from scraper import get_item_count, get_items_basic_details_from_page, get_items_basic_details, get_items_price_history
-from scraper_data import Game, Item
-from scraper_support import get_file_location
+from scraper import get_item_count, get_items_basic_details_from_page, get_items_basic_details, get_item_price_history_from_page, get_items_price_history
+from scraper_data import Item
 
 def test_get_item_count():
     """
@@ -64,32 +62,6 @@ def test_get_items_basic_details():
     assert minesweeper_vr.item_exist(one_dollar) is not False
     assert minesweeper_vr.item_exist(five_dollars) is not False
 
-    # Creating a pickle file without all the items
-    minesweeper_vr = Game("516940")
-    minesweeper_vr.add_item(one_dollar)
-    minesweeper_vr.save()
-
-    # Using pickle file to add items onto
-    minesweeper_vr = get_items_basic_details("516940")
-
-    # Ensuring that the items are obtained
-    assert minesweeper_vr.item_exist(one_dollar) is not False
-    assert minesweeper_vr.item_exist(five_dollars) is not False
-
-    # Creating pickle file with extra items
-    minesweeper_vr = Game("516940")
-    test_fake_item = Item("test_fake_item", "test")
-    minesweeper_vr.add_item(test_fake_item)
-    minesweeper_vr.save()
-
-    # Using pickle file to add items onto
-    minesweeper_vr = get_items_basic_details("516940")
-
-    # Ensuring that the items are obtained
-    assert minesweeper_vr.item_exist(test_fake_item) is not False
-    assert minesweeper_vr.item_exist(one_dollar) is not False
-    assert minesweeper_vr.item_exist(five_dollars) is not False
-
     # Testing under a page of items
     immune = get_items_basic_details("348670")
     assert (50 < immune.item_count() < 100) is True
@@ -98,12 +70,20 @@ def test_get_items_basic_details():
     miscreated = get_items_basic_details("299740")
     assert (400 < miscreated.item_count() < 500) is True
 
-    # Cleaning up
-    remove(get_file_location("516940"))
+def test_get_item_price_history_from_page():
+    """
+    Test get_item_price_history_from_page
+    """
+    # Obtaining items from MineSweeper VR
+    price_history = get_item_price_history_from_page("516940", "1$")
+
+    # Testing to ensure items are obtained
+    assert len(price_history) > 30
 
 def test_get_items_price_history():
     """
     Test get_items_price_history
+    Tested game with one page of items and game with multiple pages
     """
     # Obtaining items from MineSweeper VR
     minesweeper_vr = get_items_price_history("516940")
@@ -116,4 +96,4 @@ def test_get_items_price_history():
     assert minesweeper_vr.game_id == "516940"
     assert minesweeper_vr.item_exist(one_dollar) is not False
     assert minesweeper_vr.item_exist(five_dollars) is not False
-    assert len(minesweeper_vr.items[0].price_history) < 31 or len(minesweeper_vr.items[1].price_history) < 31
+    assert len(minesweeper_vr.items[0].price_history) > 30 or len(minesweeper_vr.items[1].price_history) > 30

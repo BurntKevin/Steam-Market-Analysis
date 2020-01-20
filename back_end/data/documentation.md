@@ -1,2 +1,2 @@
 # Data
-* Stores data obtained from scraper
+* Stores the data obtained from scraper

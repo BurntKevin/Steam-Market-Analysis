@@ -2,15 +2,12 @@
 Test scraper data
 """
 # Supporting functions
-from os import remove # To remove file
 from datetime import datetime # To format pricehistory date
 import sys # To access library
 
 # Library to test
 sys.path.insert(0, "../library")
 from scraper_data import Game, Item, PriceHistoryPoint
-from scraper_support import data_from_pickle_file, get_file_location
-from scraper import get_item_price_history_from_page
 
 def test_game_class_init():
     """
@@ -68,24 +65,6 @@ def test_game_class_show():
     shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
     counter_strike_global_offensive.add_item(shattered_web_case)
     counter_strike_global_offensive.show()
-
-def test_game_class_save():
-    """
-    Test game save
-    """
-    # Testing game without skins
-    test = Game("test")
-    test.save()
-    saved_test = data_from_pickle_file(get_file_location("test"))
-    assert test.same(saved_test)
-
-    # Testing game with skins
-    shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
-    test.add_item(shattered_web_case)
-    assert test.same(saved_test) is False
-
-    # Cleaning up
-    remove(get_file_location("test"))
 
 def test_game_class_item_count():
     """

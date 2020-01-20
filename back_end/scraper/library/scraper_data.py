@@ -7,9 +7,6 @@ Price history contains date, median price, volume
 # Support Library
 from datetime import datetime # Simplfying dates
 
-# Scraper Library
-from scraper_support import data_to_pickle_file, get_file_location
-
 # Game class
 class Game:
     """
@@ -52,11 +49,6 @@ class Game:
         print(self.game_id)
         for item in self.items:
             print("  {}".format(item.show()))
-    def save(self):
-        """
-        Saves the game's data
-        """
-        data_to_pickle_file(self, get_file_location(self.game_id))
     def item_count(self):
         """
         Returns the amount of items in a game

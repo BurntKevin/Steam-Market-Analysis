@@ -7,7 +7,7 @@ item name, item icon
 from os.path import exists # To check files
 
 # Scraper Library
-from scraper_support import list_duplicate_remover, data_from_pickle_file, get_page, string_to_query_string, get_file_location
+from scraper_support import get_page, string_to_query_string
 from scraper_data import Game, Item, PriceHistoryPoint
 
 def get_item_count(game_id):
@@ -46,25 +46,10 @@ def get_items_basic_details(game_id):
     # Maximum load is 100 items per page
     # Looping by 50 items per page as it allows a buffer for the dynamic sorted
     # nature of the items being obtained
+    data = Game(game_id)
     total_items = get_item_count(game_id)
-    items = []
     for start_position in range(0, total_items + 50, 50):
-        items += get_items_basic_details_from_page(game_id, start_position)
-    # Cleaning up duplicates in the items obtained
-    items = list_duplicate_remover(items)
-
-    # Checking if this is an update to items or if this is the first time
-    file_location = get_file_location(game_id)
-    if exists(file_location):
-        # Checking for new additions to add
-        data = data_from_pickle_file(file_location)
-        # Adding new items
-        for item in items:
-            data.add_item(item) # Has a check so that only new items are added
-    else:
-        # Setting up data to be returned
-        data = Game(game_id)
-        for item in items:
+        for item in get_items_basic_details_from_page(game_id, start_position):
             data.add_item(item)
 
     return data
