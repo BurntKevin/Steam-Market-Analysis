@@ -8,8 +8,8 @@ from json import loads # Get information from website
 from time import sleep # Controls amount of requests being sent to website
 from requests import get # Connect to website
 
-# Cookie to access login only information: pricehistory
-COOKIE = {"steamLoginSecure": "76561198362858068%7C%7C8F457EEA131799F3762C909704FEE9510B754D2A"}
+# Cookie to access login only information: price history
+COOKIE = {"steamLoginSecure": "76561198362858068%7C%7CB7DEAD3BAD80545AA29B1A143816634936293374"}
 
 def get_page(url):
     """

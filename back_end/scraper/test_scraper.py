@@ -1,11 +1,7 @@
 """
 Tests scraper functions
 """
-# Support libraries
-import sys # To get custom libraries
-
 # Library to test
-sys.path.insert(0, "../library")
 from scraper import get_item_count, get_items_basic_details_from_page, get_items_basic_details, get_item_price_history_from_page, get_items_price_history
 from scraper_data import Item
 

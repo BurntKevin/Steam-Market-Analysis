@@ -25,7 +25,7 @@ class Game:
         """
         conflict_item = self.item_exist(new_item)
         if conflict_item is False:
-            # Adding item as it doesn't already exist
+            # Adding item as it does not already exist
             self.items.append(new_item)
         else:
             # Notifying user of failed add if item is different
@@ -73,6 +73,19 @@ class Game:
 
         # Same game details
         return True
+    def deobject(self):
+        """
+        Turns game object into standard data structure
+        """
+        # Obtaining items
+        item_data = []
+        for item in self.items:
+            item_data.append(item.deobject())
+
+        return {
+            "game_id": self.game_id,
+            "items": item_data
+        }
 
 # Item class
 class Item:
@@ -88,13 +101,11 @@ class Item:
         self.price_history = []
     def add_price_history(self, price_history):
         """
-        Adds the price history to a skin
+        Adds the price history to a skin, overwriting previous
+        Done as it is assumed that the given price history is always the latest
         """
         # Clearing history
-        self.price_history = []
-
-        # Adding history
-        self.price_history.append(price_history)
+        self.price_history = price_history
     def show(self):
         """
         Returns the name, icon and length of price history in a formatted
@@ -127,6 +138,20 @@ class Item:
 
         # Same item details
         return True
+    def deobject(self):
+        """
+        Turns item object into standard data structure
+        """
+        # Obtaining price history
+        price_history_data = []
+        for price_history_point in self.price_history:
+            price_history_data.append(price_history_point.deobject())
+
+        return {
+            "item_name": self.name,
+            "item_icon": self.icon,
+            "price_history": price_history_data
+        }
 
 # Price history point class
 class PriceHistoryPoint:
@@ -139,7 +164,7 @@ class PriceHistoryPoint:
         The history includes the date which the data is based on, a price and
         its volume
         """
-        self.date = datetime.strptime(date[0:11], "%b %d %Y")
+        self.date = date
         self.price = price
         self.volume = volume
     def show(self):
@@ -165,3 +190,12 @@ class PriceHistoryPoint:
 
         # Same price point data
         return True
+    def deobject(self):
+        """
+        Turns price history object into  standard data structure
+        """
+        return {
+            "price_history_point_date": self.date,
+            "price_history_point_price": self.price,
+            "price_history_point_volume": self.volume
+        }

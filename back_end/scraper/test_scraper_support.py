@@ -3,11 +3,9 @@ Testing scraper_support functions
 """
 # Support functions
 from time import sleep # Used as we need to become blocked by the website
-import sys # Allows use of library
 from requests import get # Used to get blocked by the website
 
 # Library to be tested
-sys.path.insert(0, "../library")
 from scraper_support import get_page, string_to_query_string
 
 def test_get_page():

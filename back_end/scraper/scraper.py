@@ -5,10 +5,11 @@ item name, item icon
 """
 # Support Library
 from os.path import exists # To check files
+from datetime import datetime # To manage dates
 
 # Scraper Library
-from scraper_support import get_page, string_to_query_string
-from scraper_data import Game, Item, PriceHistoryPoint
+from .scraper_support import get_page, string_to_query_string
+from .scraper_data import Game, Item, PriceHistoryPoint
 
 def get_item_count(game_id):
     """
@@ -67,7 +68,7 @@ def get_item_price_history_from_page(game_id, item):
     # Obtaining price history
     price_history = []
     for price in prices:
-        point = PriceHistoryPoint(price[0][0:11], price[1], price[2])
+        point = PriceHistoryPoint(datetime.strptime(price[0][0:11], "%b %d %Y"), price[1], price[2])
         price_history.append(point)
 
     # Returning

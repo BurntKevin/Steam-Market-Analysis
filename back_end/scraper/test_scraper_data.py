@@ -3,10 +3,8 @@ Test scraper data
 """
 # Supporting functions
 from datetime import datetime # To format pricehistory date
-import sys # To access library
 
 # Library to test
-sys.path.insert(0, "../library")
 from scraper_data import Game, Item, PriceHistoryPoint
 
 def test_game_class_init():
@@ -126,14 +124,14 @@ def test_item_add_price_history():
     shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
 
     # Obtaining a price history to insert
-    price_history_point = PriceHistoryPoint("Jan 26 2017 01: +0", 2.495, "1")
+    price_history_point = [PriceHistoryPoint(datetime(2017, 1, 26), 2.495, "1")]
     shattered_web_case.add_price_history(price_history_point)
-    assert shattered_web_case.price_history[0].same(price_history_point)
+    assert shattered_web_case.price_history[0].same(price_history_point[0])
 
     # Replacing price history with a new history
-    price_history_point = PriceHistoryPoint("Jan 26 2018 01: +0", 2.495, "1")
+    price_history_point = [PriceHistoryPoint(datetime(2017, 1, 22), 2.495, "1")]
     shattered_web_case.add_price_history(price_history_point)
-    assert shattered_web_case.price_history[0].same(price_history_point)
+    assert shattered_web_case.price_history[0].same(price_history_point[0])
 
 def test_item_show():
     """
@@ -150,7 +148,7 @@ def test_item_same():
     """
     # Item to be compared to
     shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
-    price_history_point = PriceHistoryPoint("Jan 26 2017 01: +0", 2.495, "1")
+    price_history_point = [PriceHistoryPoint(datetime(2017, 1, 26), 2.495, "1")]
     shattered_web_case.add_price_history(price_history_point)
 
     # Item the same
@@ -161,19 +159,19 @@ def test_item_same():
 
     # Different name
     cs20_case = Item("CS20 Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
-    price_history_point = PriceHistoryPoint("Jan 26 2017 01: +0", 2.495, "1")
+    price_history_point = [PriceHistoryPoint(datetime(2017, 1, 26), 2.495, "1")]
     cs20_case.add_price_history(price_history_point)
     assert shattered_web_case.same(cs20_case) is False
 
     # Different icon
     shattered_web_case_second = Item("Shattered Web Case", "ab")
-    price_history_point = PriceHistoryPoint("Jan 26 2017 01: +0", 2.495, "1")
+    price_history_point = [PriceHistoryPoint(datetime(2017, 1, 26), 2.495, "1")]
     shattered_web_case_second.add_price_history(price_history_point)
     assert shattered_web_case.same(shattered_web_case_second) is False
 
     # Different price history
     shattered_web_case_second = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
-    price_history_point = PriceHistoryPoint("Jan 26 2018 01: +0", 2.495, "1")
+    price_history_point = [PriceHistoryPoint(datetime(2017, 1, 22), 2.495, "1")]
     shattered_web_case_second.add_price_history(price_history_point)
     assert shattered_web_case.same(shattered_web_case_second) is False
 
@@ -183,7 +181,7 @@ def test_pricehistorypoint_class_init():
     """
     # Creating Object - Price History
     price_history_point = ["Jan 26 2017 01: +0", 2.495, "1"]
-    price_point = PriceHistoryPoint(price_history_point[0], price_history_point[1], price_history_point[2])
+    price_point = PriceHistoryPoint(datetime.strptime(price_history_point[0][0:11], "%b %d %Y"), price_history_point[1], price_history_point[2])
     assert price_point.date == datetime(2017, 1, 26, 0, 0) and price_point.price == 2.495 and price_point.volume == "1"
 
 def test_pricehistorypoint_class_show():
@@ -191,11 +189,11 @@ def test_pricehistorypoint_class_show():
     Test priceHistoryPoint class show
     """
     # Creating price history point
-    first_price = PriceHistoryPoint("Nov 18 2019 01: +0", 6.247, "2055")
+    first_price = PriceHistoryPoint(datetime(2019, 11, 18, 0, 0), 6.247, "2055")
     assert first_price.show() == "18/11/2019 has price 6.247 and volume 2055"
 
     # Testing another price history point to ensure that it is dynamic
-    second_price = PriceHistoryPoint("Dec 17 2019 13: +0", 1.495, "798")
+    second_price = PriceHistoryPoint(datetime(2019, 12, 17, 0, 0), 1.495, "798")
     assert second_price.show() == "17/12/2019 has price 1.495 and volume 798"
 
 def test_pricehistorypoint_same():
@@ -205,19 +203,19 @@ def test_pricehistorypoint_same():
     volume)
     """
     # Testing same price history point
-    first_price = PriceHistoryPoint("Nov 18 2019 01: +0", 6.247, "2055")
-    second_price = PriceHistoryPoint("Nov 18 2019 01: +0", 6.247, "2055")
+    first_price = PriceHistoryPoint(datetime(2017, 1, 26), 6.247, "2055")
+    second_price = PriceHistoryPoint(datetime(2017, 1, 26), 6.247, "2055")
     assert first_price.same(first_price)
     assert first_price.same(second_price)
 
     # Testing different date
-    third_price = PriceHistoryPoint("Nov 18 2020 01: +0", 6.247, "2055")
+    third_price = PriceHistoryPoint(datetime(2017, 1, 12), 6.247, "2055")
     assert first_price.same(third_price) is False
 
     # Testing different price
-    third_price = PriceHistoryPoint("Nov 18 2019 01: +0", 2, "2055")
+    third_price = PriceHistoryPoint(datetime(2017, 1, 26), 2, "2055")
     assert first_price.same(third_price) is False
 
     # Testing different volume
-    third_price = PriceHistoryPoint("Nov 18 2019 01: +0", 6.247, "20552")
+    third_price = PriceHistoryPoint(datetime(2017, 1, 26), 6.247, "20552")
     assert first_price.same(third_price) is False

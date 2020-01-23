@@ -1,9 +1,9 @@
-from . import db
+from .. import db
 from datetime import datetime
 
 class Game(db.Model):
     # Game details
-    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, primary_key=True)
 
     # References
     items = db.relationship("Item", backref="game", lazy=True)
@@ -14,7 +14,7 @@ class Item(db.Model):
     icon = db.Column(db.String(150), nullable=False)
 
     # References
-    game_id = db.Column(db.Integer, db.ForeignKey("game.id"), nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("game.game_id"), nullable=False)
     price_history = db.relationship("PriceHistoryPoint", backref="Item", lazy=True)
 
 class PriceHistoryPoint(db.Model):
