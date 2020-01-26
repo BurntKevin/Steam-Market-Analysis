@@ -1,4 +1,4 @@
-from .. import db
+from back_end.__init__ import db
 from datetime import datetime
 
 class Game(db.Model):

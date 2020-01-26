@@ -86,6 +86,11 @@ class Game:
             "game_id": self.game_id,
             "items": item_data
         }
+    def game_icon(self):
+        """
+        Returns the official game artwork
+        """
+        return "https://steamcdn-a.akamaihd.net/steam/apps/{}/header.jpg".format(self.game_id)
 
 # Item class
 class Item:

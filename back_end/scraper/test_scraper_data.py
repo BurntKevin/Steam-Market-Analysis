@@ -5,7 +5,7 @@ Test scraper data
 from datetime import datetime # To format pricehistory date
 
 # Library to test
-from scraper_data import Game, Item, PriceHistoryPoint
+from back_end.scraper.scraper_data import Game, Item, PriceHistoryPoint
 
 def test_game_class_init():
     """
@@ -108,6 +108,28 @@ def test_game_same():
     counter_strike_global_offensive_same = Game("730")
     assert counter_strike_global_offensive.same(counter_strike_global_offensive_same) is False
 
+def test_game_deobject():
+    """
+    Test deobject game
+    """
+    counter_strike_global_offensive = Game("730")
+    assert counter_strike_global_offensive.deobject() == {
+        "game_id": "730",
+        "items": []
+    }
+
+def test_game_game_icon():
+    """
+    Test game icon
+    """
+    # Testing CS:GO
+    counter_strike_global_offensive = Game("730")
+    assert counter_strike_global_offensive.game_icon() == "https://steamcdn-a.akamaihd.net/steam/apps/730/header.jpg"
+
+    # Testing Minesweeper VR
+    minesweeper_vr = Game("516940")
+    assert minesweeper_vr.game_icon() == "https://steamcdn-a.akamaihd.net/steam/apps/516940/header.jpg"
+
 def test_item_class_init():
     """
     Test item class init
@@ -175,6 +197,17 @@ def test_item_same():
     shattered_web_case_second.add_price_history(price_history_point)
     assert shattered_web_case.same(shattered_web_case_second) is False
 
+def test_item_deobject():
+    """
+    Test item deobject
+    """
+    shattered_web_case = Item("Shattered Web Case", "link")
+    assert shattered_web_case.deobject() == {
+        "item_name": "Shattered Web Case",
+        "item_icon": "https://steamcommunity.com/economy/image/link",
+        "price_history": []
+    }
+
 def test_pricehistorypoint_class_init():
     """
     Test priceHistoryPoint class init
@@ -219,3 +252,14 @@ def test_pricehistorypoint_same():
     # Testing different volume
     third_price = PriceHistoryPoint(datetime(2017, 1, 26), 6.247, "20552")
     assert first_price.same(third_price) is False
+
+def test_pricehistorypoint_deobject():
+    """
+    Test price history point deobject
+    """
+    price = PriceHistoryPoint(datetime(2017, 1, 26), 6.247, "20552")
+    assert price.deobject() == {
+        "price_history_point_date": datetime(2017, 1, 26),
+        "price_history_point_price": 6.247,
+        "price_history_point_volume": "20552"
+    }

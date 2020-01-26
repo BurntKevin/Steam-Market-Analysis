@@ -8,8 +8,8 @@ from os.path import exists # To check files
 from datetime import datetime # To manage dates
 
 # Scraper Library
-from .scraper_support import get_page, string_to_query_string
-from .scraper_data import Game, Item, PriceHistoryPoint
+from back_end.scraper.scraper_support import get_page, string_to_query_string
+from back_end.scraper.scraper_data import Game, Item, PriceHistoryPoint
 
 def get_item_count(game_id):
     """

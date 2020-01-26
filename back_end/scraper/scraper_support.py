@@ -9,7 +9,7 @@ from time import sleep # Controls amount of requests being sent to website
 from requests import get # Connect to website
 
 # Cookie to access login only information: price history
-COOKIE = {"steamLoginSecure": "76561198362858068%7C%7CB7DEAD3BAD80545AA29B1A143816634936293374"}
+COOKIE = {"steamLoginSecure": "76561198362858068%7C%7C8F609ED886510F89A843887090B49124099569D3"}
 
 def get_page(url):
     """

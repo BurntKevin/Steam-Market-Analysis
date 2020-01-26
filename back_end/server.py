@@ -2,10 +2,10 @@
 from flask import Blueprint, jsonify, request
 
 # Custom Libraries
-from . import db, create_app
-from .data.models import Game, Item, PriceHistoryPoint
-from .scraper.scraper import get_items_price_history
-from .data.database import upload_game_data, retrieve_game_data
+from back_end.__init__ import db, create_app
+from back_end.data.models import Game, Item, PriceHistoryPoint
+from back_end.scraper.scraper import get_items_price_history
+from back_end.data.database import upload_game_data, retrieve_game_data
 
 # Setting up server and database
 main = Blueprint("main", __name__)
@@ -21,7 +21,7 @@ def add_game():
     game_data = request.get_json()
 
     # Getting game data to add
-    game = get_items_price_history(game_data["id"])
+    game = get_items_price_history(game_data["gameId"])
 
     # Converting game's details into a commit
     upload_game_data(db, game)

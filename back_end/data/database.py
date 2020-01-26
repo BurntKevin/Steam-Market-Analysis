@@ -53,3 +53,19 @@ def retrieve_game_data(game_id):
         game_data.add_item(item_data)
 
     return game_data
+
+def retrieve_basic_game_data():
+    # Obtaining games
+    games = db_game.query.filter_by()
+
+    # Cleaning up data
+    game_data = []
+    for game in games:
+        game_detail = Game(game.game_id)
+        game_data.append({
+            "game": game_detail.game_id
+            "game_icon": game_detail.game_icon()
+        })
+
+    # Returning game ids
+    return game_ids

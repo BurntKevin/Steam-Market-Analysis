@@ -2,8 +2,8 @@
 Tests scraper functions
 """
 # Library to test
-from scraper import get_item_count, get_items_basic_details_from_page, get_items_basic_details, get_item_price_history_from_page, get_items_price_history
-from scraper_data import Item
+from back_end.scraper.scraper import get_item_count, get_items_basic_details_from_page, get_items_basic_details, get_item_price_history_from_page, get_items_price_history
+from back_end.scraper.scraper_data import Item
 
 def test_get_item_count():
     """
@@ -64,7 +64,7 @@ def test_get_items_basic_details():
 
     # Testing more than a page of items
     miscreated = get_items_basic_details("299740")
-    assert (400 < miscreated.item_count() < 500) is True
+    assert (350 < miscreated.item_count() < 500) is True
 
 def test_get_item_price_history_from_page():
     """

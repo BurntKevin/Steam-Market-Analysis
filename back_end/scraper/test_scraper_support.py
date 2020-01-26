@@ -6,7 +6,7 @@ from time import sleep # Used as we need to become blocked by the website
 from requests import get # Used to get blocked by the website
 
 # Library to be tested
-from scraper_support import get_page, string_to_query_string
+from back_end.scraper.scraper_support import get_page, string_to_query_string
 
 def test_get_page():
     """
