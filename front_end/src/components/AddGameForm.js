@@ -26,7 +26,6 @@ export const AddGameForm = ({ onNewGame }) => {
             });
 
             if (response.ok) {
-              onNewGame(game);
               setGameId("");
             }
           }}

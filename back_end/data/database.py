@@ -3,6 +3,9 @@ Functions to allow access to the database easier
 """
 from back_end.data.models import Game as db_game, Item as db_item, PriceHistoryPoint as db_pricehistorypoint
 from back_end.scraper.scraper_data import Game as sc_game, Item as sc_item, PriceHistoryPoint as sc_pricehistorypoint
+from sqlalchemy import desc
+import datetime
+from back_end.data.support import merge_sort
 
 def upload_game_data(database, data):
     # Deleting game if exists
@@ -61,11 +64,85 @@ def retrieve_basic_game_data():
     # Cleaning up data
     game_data = []
     for game in games:
-        game_detail = Game(game.game_id)
+        game_detail = sc_game(game.game_id)
         game_data.append({
-            "game": game_detail.game_id
+            "game_id": game_detail.game_id,
             "game_icon": game_detail.game_icon()
         })
 
-    # Returning game ids
-    return game_ids
+    # Returning game data
+    return game_data
+
+def retrieve_basic_item_data_from_game(game_id):
+    # Obtaining items
+    items = db_item.query.filter_by(game_id=game_id)
+
+    # Cleaning up data
+    item_data = []
+    for item in items:
+        item_data.append({
+            "item_name": item.name,
+            "item_icon": item.icon
+        })
+
+    # Returning data
+    return item_data
+
+def retrieve_item_price_history(item_name):
+    # Obtaining price history
+    price_history = db_pricehistorypoint.query.filter_by(item_name=item_name).order_by()
+    history = []
+    for price_history_point in price_history:
+        history.append(sc_pricehistorypoint(price_history_point.date, price_history_point.price, price_history_point.volume).deobject())
+
+    # Returning data
+    return history
+
+def retrieve_fully_filled_item_price_history(item_name):
+    """
+    Fills up all blank dates with a date, None price and 0 volume
+    """
+    # Obtaining price history
+    price_history = retrieve_item_price_history(item_name)
+
+    # Obtaining all possible dates
+    start = price_history[0]["price_history_point_date"]
+    end = datetime.datetime.today()
+    dates = []
+    while start <= end:
+        dates.append(sc_pricehistorypoint(start, None, 0).deobject())
+        start += datetime.timedelta(days=1)
+
+    # Sorting
+    all_dates = dates + price_history
+    all_dates = merge_sort(all_dates)
+
+    # Returning data
+    return all_dates
+
+def retrieve_item_price_history_analysis(item_name):
+    # Obtaining price history
+    price_history = retrieve_fully_filled_item_price_history(item_name)
+
+    # Adding percentage change and turnover to price
+    previous_price = None;
+    for price_history_point in price_history:
+        if previous_price == None:
+            # First price cannot have a percentage_change
+            price_history_point["price_history_point_percentage_change"] = None
+            price_history_point["price_history_point_turnover"] = price_history_point["price_history_point_volume"] * price_history_point["price_history_point_price"]
+            
+            previous_price = price_history_point["price_history_point_price"]
+        if price_history_point["price_history_point_volume"] == 0:
+            # Date added as a fill
+            price_history_point["price_history_point_percentage_change"] = None
+            price_history_point["price_history_point_turnover"] = None
+            
+        else:
+            # Price can have a percentage change
+            price_history_point["price_history_point_percentage_change"] = round((price_history_point["price_history_point_price"] / previous_price - 1) * 100, 3)
+            price_history_point["price_history_point_turnover"] = price_history_point["price_history_point_volume"] * price_history_point["price_history_point_price"]
+            previous_price = price_history_point["price_history_point_price"]
+
+    # Returning data
+    return price_history[::-1]

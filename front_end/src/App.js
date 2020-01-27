@@ -5,15 +5,15 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 // Pages
 import ViewAllGamesPage from "./pages/ViewAllGamesPage";
 import ViewAllItemsPage from "./pages/ViewAllItemsPage";
-import ViewItemDetailsPage from "./pages/ViewItemDetailsPage";
+import ViewItemAnalysisPage from "./pages/ViewItemAnalysisPage";
 
 function App() {
   return (
     <Router>
       <Switch>
         <Route exact path="/" component={ViewAllGamesPage} />
-        <Route exact path="/view_all_items:game" component={ViewAllItemsPage} />
-        <Route exact path="/view_item_details:item" component={ViewItemDetailsPage} />
+        <Route exact path="/view_all_items:game_id" component={ViewAllItemsPage} />
+        <Route exact path="/view_item_analysis:item_name" component={ViewItemAnalysisPage} />
       </Switch>
     </Router>
   );

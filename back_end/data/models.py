@@ -20,8 +20,8 @@ class Item(db.Model):
 class PriceHistoryPoint(db.Model):
     # PriceHistoryPoint details
     date = db.Column(db.DateTime, primary_key=True)
-    price = db.Column(db.Float, nullable=False)
-    volume = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float, nullable=False, primary_key=True)
+    volume = db.Column(db.Integer, nullable=False, primary_key=True)
 
     # References
-    item_name = db.Column(db.String(50), db.ForeignKey("item.name"), nullable=False)
+    item_name = db.Column(db.String(50), db.ForeignKey("item.name"), nullable=False, primary_key=True)

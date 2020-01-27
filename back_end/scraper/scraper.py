@@ -63,13 +63,20 @@ def get_item_price_history_from_page(game_id, item):
 
     # Obtaining prices
     page = get_page(url)
-    prices = page["prices"]
-
-    # Obtaining price history
-    price_history = []
-    for price in prices:
-        point = PriceHistoryPoint(datetime.strptime(price[0][0:11], "%b %d %Y"), price[1], price[2])
-        price_history.append(point)
+    
+    # Checking status of get_page
+    if page == None:
+        # Unsuccessful price
+        price_history = []
+    else:
+        # Successful price
+        prices = page["prices"]
+        
+        # Obtaining price history
+        price_history = []
+        for price in prices:
+            point = PriceHistoryPoint(datetime.strptime(price[0][0:11], "%b %d %Y"), price[1], price[2])
+            price_history.append(point)
 
     # Returning
     return price_history

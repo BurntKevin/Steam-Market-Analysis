@@ -76,6 +76,12 @@ def test_get_item_price_history_from_page():
     # Testing to ensure items are obtained
     assert len(price_history) > 30
 
+    # Obtaining price history of non-existent item
+    price_history = get_item_price_history_from_page("214125", "21321f")
+
+    # Testing to ensure no price history is obtained
+    assert price_history == []
+
 def test_get_items_price_history():
     """
     Test get_items_price_history

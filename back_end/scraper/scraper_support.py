@@ -11,10 +11,15 @@ from requests import get # Connect to website
 # Cookie to access login only information: price history
 COOKIE = {"steamLoginSecure": "76561198362858068%7C%7C8F609ED886510F89A843887090B49124099569D3"}
 
-def get_page(url):
+def get_page(url, try_number=0):
     """
     Obtains data about a game and waits until unblocked if blocked
     """
+    # If trying exceeds 3 minutes (60 tries), give up
+    if try_number == 60:
+        print("Failed {}".format(url))
+        return None
+
     # Obtaining page
     page = get(url, cookies=COOKIE)
 
@@ -24,7 +29,7 @@ def get_page(url):
     if page.status_code != 200:
         # Unsuccessfully obtained page, retrying in 3 seconds
         sleep(3)
-        return get_page(url)
+        return get_page(url, try_number + 1)
 
     # Successfully obtained page, returning page
     page = page.content

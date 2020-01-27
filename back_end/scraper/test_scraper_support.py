@@ -24,6 +24,10 @@ def test_get_page():
     page = get_page(url)
     assert page["success"]
 
+    # Testing wrong url
+    page = get_page("https://steamcommunity.com/market/pricehistory/?appid=263920&market_hash_name=Unlimited%20Mint%20&%20Chit")
+    assert page is None
+
     # Testing normal successful request
     sleep(60)
     page = get_page(url)
