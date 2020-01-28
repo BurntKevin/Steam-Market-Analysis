@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Image, List, Header, Icon, Label, Menu, Table, Pagination} from "semantic-ui-react";
+import { Table } from "semantic-ui-react";
 import axios from 'axios';
 
 export const ViewItemPriceHistoryAnalysis = ({ item_name }) => {
@@ -31,7 +31,7 @@ export const ViewItemPriceHistoryAnalysis = ({ item_name }) => {
 
       <Table.Body>
         {priceHistoryAnalysis.map(priceHistoryAnalysisPoint => {
-          if (priceHistoryAnalysisPoint.price_history_point_volume != 0) {
+          if (priceHistoryAnalysisPoint.price_history_point_volume !== 0) {
             return (
               <Table.Row>
                 <Table.Cell>{priceHistoryAnalysisPoint.price_history_point_date}</Table.Cell>

@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Input, Menu, Item } from 'semantic-ui-react'
-import GameForm from '../AddGameForm';
+import AddGameForm from '../AddGameForm';
+import SearchGameForm from '../SearchGameForm';
+import SearchItemForm from '../SearchItemForm';
 
 function Header() {
   return (
@@ -10,19 +12,12 @@ function Header() {
       </Menu.Item>
 
       <Menu.Item>
-        <GameForm/>
+        <AddGameForm/>
       </Menu.Item>
 
       <Menu.Item position='right'>
-        <Input
-          action={{ type: 'submit', content: 'Go' }}
-          placeholder='Search game'
-        />
-
-        <Input
-          action={{ type: 'submit', content: 'Go' }}
-          placeholder='Search item'
-        />
+        <SearchGameForm/>
+        <SearchItemForm/>
       </Menu.Item>
     </Menu>
   );

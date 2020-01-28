@@ -8,7 +8,7 @@ function ViewAllItemsPage({ match }) {
 
   return (
     <Layout
-      body={<ViewAllItems game_id={game_id}/>}
+      body1={<ViewAllItems game_id={game_id}/>}
     />
   );
 }

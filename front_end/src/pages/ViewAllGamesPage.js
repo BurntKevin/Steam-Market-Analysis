@@ -6,7 +6,7 @@ import ViewAllGames from "../components/ViewAllGames"
 function ViewAllGamesPage() {
   return (
     <Layout
-      body={<ViewAllGames />}
+      body1={<ViewAllGames />}
     />
   );
 }

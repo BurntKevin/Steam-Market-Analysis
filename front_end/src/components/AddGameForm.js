@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Form, Input, Button } from "semantic-ui-react";
 
-export const AddGameForm = ({ onNewGame }) => {
+export const AddGameForm = () => {
   const [gameId, setGameId] = useState("");
 
   return (
     <Form>
       <Form.Field>
         <Input
-          placeholder="Add game by id"
+          placeholder="Add or update game by id"
           value={gameId}
           onChange={e => setGameId(e.target.value)}
         />

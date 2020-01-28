@@ -1,12 +1,12 @@
 # Standard Libraries
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, redirect, url_for
 
 # Custom Libraries
 from back_end.__init__ import db, create_app
 from back_end.data.models import Game, Item, PriceHistoryPoint
 from back_end.scraper.scraper import get_items_price_history
 from back_end.data.database import upload_game_data, retrieve_game_data, retrieve_basic_game_data, retrieve_basic_item_data_from_game, retrieve_item_price_history, retrieve_fully_filled_item_price_history, retrieve_item_price_history_analysis
-from back_end.technical_analysis import calculate_rsi_from_price_history
+from back_end.technical_analysis.technical_analysis import calculate_rsi_from_price_history
 
 from json import dumps
 
@@ -53,7 +53,7 @@ def view_item_price_history_chart():
     # Obtaining item details
     # item_name = request.args.get("item_name")[1:]
     price_history = retrieve_fully_filled_item_price_history("1$")
-    price_history = calculate_rsi_from_price_history(price_history)
+    # price_history = calculate_rsi_from_price_history(price_history)
 
     """
     MAJOR PROBLEMM!!!! FUNCTION OR FUNCTION CALLER DOES NOT WORK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PROPERLY TODO
@@ -66,7 +66,7 @@ def view_item_price_history_chart():
             price_history_point["price_history_point_date"].strftime('%m/%d/%Y %H:%M:%S'),
             price_history_point["price_history_point_price"],
             price_history_point["price_history_point_volume"] * 2 # Hacky
-            price_history_point["price_history_point_rsi"]
+            # price_history_point["price_history_point_rsi"]
         ])
 
     # Returning data
