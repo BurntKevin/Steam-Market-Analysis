@@ -11,6 +11,7 @@ class ChartViewer extends React.Component {
     super(props);
 
     const item_name = this.props.item_name
+
     this.dataFetch =
       axios
       .get("/view_item_price_history_chart", {

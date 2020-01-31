@@ -19,7 +19,7 @@ function SearchItemForm() {
         <Button
           onClick={async () => {
             window.location.assign(
-              "/view_item_analysis:".concat(JSON.parse(itemName))
+              "/view_item_analysis:".concat(itemName)
             )
           }}
         >

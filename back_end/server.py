@@ -51,8 +51,8 @@ def view_all_items():
 @main.route("/view_item_price_history_chart")
 def view_item_price_history_chart():
     # Obtaining item details
-    # item_name = request.args.get("item_name")[1:]
-    price_history = retrieve_fully_filled_item_price_history("1$")
+    item_name = request.args.get("item_name")[1:]
+    price_history = retrieve_fully_filled_item_price_history(item_name)
     # price_history = calculate_rsi_from_price_history(price_history)
 
     """
@@ -70,7 +70,6 @@ def view_item_price_history_chart():
         ])
 
     # Returning data
-    print
 
     return dumps({
         "price_history": data

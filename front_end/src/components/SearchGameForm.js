@@ -19,7 +19,7 @@ function SearchGameForm() {
         <Button
           onClick={async () => {
             window.location.assign(
-              "/view_all_items:".concat(JSON.parse(gameName))
+              "/view_all_items:".concat(gameName)
             )
           }}
         >

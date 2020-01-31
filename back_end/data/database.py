@@ -106,12 +106,14 @@ def retrieve_fully_filled_item_price_history(item_name):
     price_history = retrieve_item_price_history(item_name)
 
     # Obtaining all possible dates
-    start = price_history[0]["price_history_point_date"]
-    end = datetime.datetime.today()
     dates = []
-    while start <= end:
-        dates.append(sc_pricehistorypoint(start, None, 0).deobject())
-        start += datetime.timedelta(days=1)
+    # If there is no price history, no need to find all dates
+    if len(price_history) != 0:
+        start = price_history[0]["price_history_point_date"]
+        end = datetime.datetime.today()
+        while start <= end:
+            dates.append(sc_pricehistorypoint(start, None, 0).deobject())
+            start += datetime.timedelta(days=1)
 
     # Sorting
     all_dates = dates + price_history
