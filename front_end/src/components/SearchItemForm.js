@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { Redirect } from 'react-router-dom';
 import { Form, Input, Button } from "semantic-ui-react";
-import axios from 'axios';
 
 function SearchItemForm() {
   const [itemName, setItemName] = useState([])
@@ -10,7 +8,7 @@ function SearchItemForm() {
     <Form>
       <Form.Field>
         <Input
-          placeholder="Search item"
+          placeholder="Search item by name"
           value={itemName}
           onChange={e => setItemName(e.target.value)}
         />

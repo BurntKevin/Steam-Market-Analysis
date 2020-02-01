@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import { Redirect } from 'react-router-dom';
 import { Form, Input, Button } from "semantic-ui-react";
-import axios from 'axios';
 
 function SearchGameForm() {
   const [gameName, setGameName] = useState([])
@@ -10,7 +8,7 @@ function SearchGameForm() {
     <Form>
       <Form.Field>
         <Input
-          placeholder="Search game"
+          placeholder="Search game by id"
           value={gameName}
           onChange={e => setGameName(e.target.value)}
         />
@@ -19,7 +17,7 @@ function SearchGameForm() {
         <Button
           onClick={async () => {
             window.location.assign(
-              "/view_all_items:".concat(gameName)
+              "/view_game_items:".concat(gameName)
             )
           }}
         >

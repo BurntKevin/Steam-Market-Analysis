@@ -12,7 +12,7 @@ function App() {
     <Router>
       <Switch>
         <Route exact path="/" component={ViewAllGamesPage} />
-        <Route exact path="/view_all_items:game_id" component={ViewAllItemsPage} />
+        <Route exact path="/view_game_items:game_id" component={ViewAllItemsPage} />
         <Route exact path="/view_item_analysis:item_name" component={ViewItemAnalysisPage} />
       </Switch>
     </Router>

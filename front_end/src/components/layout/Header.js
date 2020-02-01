@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Menu, Item } from 'semantic-ui-react'
+import { Menu, Item } from 'semantic-ui-react'
 import AddGameForm from '../AddGameForm';
 import SearchGameForm from '../SearchGameForm';
 import SearchItemForm from '../SearchItemForm';

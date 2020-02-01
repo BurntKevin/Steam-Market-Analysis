@@ -1,21 +1,22 @@
+"""
+Server functions
+"""
+
 # Standard Libraries
-from flask import Blueprint, jsonify, request, redirect, url_for
+from json import dumps
+from flask import Blueprint, request
 
 # Custom Libraries
-from back_end.__init__ import db, create_app
-from back_end.data.models import Game, Item, PriceHistoryPoint
-from back_end.scraper.scraper import get_items_price_history
-from back_end.data.database import upload_game_data, retrieve_game_data, retrieve_basic_game_data, retrieve_basic_item_data_from_game, retrieve_item_price_history, retrieve_fully_filled_item_price_history, retrieve_item_price_history_analysis
-from back_end.technical_analysis.technical_analysis import calculate_rsi_from_price_history
-
-from json import dumps
+from back_end.__init__ import DB, create_app
+from back_end.scraper.application.scraper import get_items_price_history
+from back_end.data.application.database import upload_game_data, retrieve_all_game_basic_data, retrieve_game_items_basic_data, retrieve_price_history_data
 
 # Setting up server and database
-main = Blueprint("main", __name__)
-db.create_all(app=create_app())
+MAIN = Blueprint("main", __name__)
+DB.create_all(app=create_app())
 
 # Server functions
-@main.route("/add_game", methods=["POST"])
+@MAIN.route("/add_game", methods=["POST"])
 def add_game():
     """
     Adds or updates a game to the latest information
@@ -26,60 +27,68 @@ def add_game():
     # Getting game data to add
     game = get_items_price_history(game_data["gameId"])
 
-    # Converting game's details into a commit
-    upload_game_data(db, game)
+    # Saving the game's details
+    upload_game_data(DB, game)
 
     return "Done", 201
 
-@main.route("/basic_game_data")
-def basic_game_data():
+@MAIN.route("/view_games")
+def all_game_basic_data():
+    """
+    Obtains basic game data for the user
+    """
     # Getting all games
-    games = retrieve_basic_game_data()
+    games = retrieve_all_game_basic_data()
 
     # Returning data
     return {"games": games}
 
-@main.route("/view_all_items")
-def view_all_items():
+@MAIN.route("/view_game_items")
+def game_items_basic_data():
+    """
+    Obtains basic item data for the user
+    """
     # Obtaining item details
     game_id = request.args.get("game_id")[1:]
-    items = retrieve_basic_item_data_from_game(game_id)
+    items = retrieve_game_items_basic_data(game_id)
 
     # Returning data
     return {"items": items}
 
-@main.route("/view_item_price_history_chart")
-def view_item_price_history_chart():
+@MAIN.route("/view_item_price_history")
+def item_price_history_data():
+    """
+    Obtains price history data
+    """
     # Obtaining item details
     item_name = request.args.get("item_name")[1:]
-    price_history = retrieve_fully_filled_item_price_history(item_name)
-    # price_history = calculate_rsi_from_price_history(price_history)
+    price_history = retrieve_price_history_data(item_name)
 
+    # Transforming data for use
+    data = []
+    for price_history_point in price_history:
+        data.append(price_history_point.deobject())
+
+    # Returning data
+    return {"price_history": data[::-1]}
+
+@MAIN.route("/view_item_price_history_chart")
+def item_price_history_data_for_chart():
     """
-    MAJOR PROBLEMM!!!! FUNCTION OR FUNCTION CALLER DOES NOT WORK!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! PROPERLY TODO
+    Obtains information for chart
     """
+    # Obtaining item details
+    item_name = request.args.get("item_name")[1:]
+    price_history = retrieve_price_history_data(item_name)
 
     # Transforming data for chart framework
     data = []
     for price_history_point in price_history:
         data.append([
-            price_history_point["price_history_point_date"].strftime('%m/%d/%Y %H:%M:%S'),
-            price_history_point["price_history_point_price"],
-            price_history_point["price_history_point_volume"] * 2 # Hacky
-            # price_history_point["price_history_point_rsi"]
+            price_history_point.date.strftime('%m/%d/%Y %H:%M:%S'),
+            price_history_point.price,
+            price_history_point.volume
         ])
 
     # Returning data
-
-    return dumps({
-        "price_history": data
-    })
-
-@main.route("/view_item_price_history_analysis")
-def view_item_price_history_analysis():
-    # Obtaining item details
-    item_name = request.args.get("item_name")[1:]
-    price_history = retrieve_item_price_history_analysis(item_name)
-
-    # Returning data
-    return {"price_history_analysis": price_history}
+    return {"price_history": data}
