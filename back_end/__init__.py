@@ -1,16 +1,22 @@
+"""
+Initialise flask server
+"""
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 
-db = SQLAlchemy()
+DB = SQLAlchemy()
 
 def create_app():
+    """
+    Creates flask app
+    """
     app = Flask(__name__)
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
 
-    db.init_app(app)
+    DB.init_app(app)
 
-    from .server import main
-    app.register_blueprint(main)
+    from .server import MAIN
+    app.register_blueprint(MAIN)
 
     return app

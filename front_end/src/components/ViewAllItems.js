@@ -7,7 +7,7 @@ export const ViewAllItems = ({ game_id }) => {
 
   useEffect(() => {
     axios
-    .get("/view_all_items", {
+    .get("/view_game_items", {
       params: {
         game_id,
       },

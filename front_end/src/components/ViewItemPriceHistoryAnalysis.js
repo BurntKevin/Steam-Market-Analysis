@@ -7,15 +7,15 @@ export const ViewItemPriceHistoryAnalysis = ({ item_name }) => {
 
   useEffect(() => {
     axios
-    .get("/view_item_price_history_analysis", {
+    .get("/view_item_price_history", {
       params: {
         item_name,
       },
     })
     .then(({ data }) => {
-      setPriceHistoryAnalysis(data.price_history_analysis);
+      setPriceHistoryAnalysis(data.price_history);
     })
-  }, []);
+  }, [item_name]);
 
   return (
     <Table celled>
