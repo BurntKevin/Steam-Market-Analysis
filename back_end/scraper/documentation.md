@@ -26,3 +26,10 @@
 * Our function to get the page (get_page) does not sleep but rather spam the server as frequently as possible and if it does block, we wait it out till we are unblocked but we still send a request every 3 seconds while we wait
 * We are able to continuously send requests as their servers have a maximum of 20 requests a minute rather than bannning if requests are too frequent
 * We chose 3 seconds as the per minute cap is reset at approximately the 20th second of every minute and hence, we generally do not need to wait a whole minute before the next set of requests
+
+# Analysis
+* Analyses the prices with RSI and MACD
+
+# Issues with Technical Analysis
+* Some items do not have a high turnover where they are rarely sold which causes issues in analysis methods
+* For example, RSI requires data points to be surrounding a particular point in order for a calculation to be resulted, however, some items will have them blank which results in partial RSI lines drawn for the chart

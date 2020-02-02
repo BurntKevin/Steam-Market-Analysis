@@ -87,7 +87,8 @@ def item_price_history_data_for_chart():
         data.append([
             price_history_point.date.strftime('%m/%d/%Y %H:%M:%S'),
             price_history_point.price,
-            price_history_point.volume
+            price_history_point.volume,
+            price_history_point.rsi
         ])
 
     # Returning data

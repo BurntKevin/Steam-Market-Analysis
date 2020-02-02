@@ -14,7 +14,6 @@ export const ViewItemPriceHistoryAnalysis = ({ item_name }) => {
     })
     .then(({ data }) => {
       setPriceHistoryAnalysis(data.price_history);
-      console.log(data.price_history)
     })
   }, [item_name]);
 

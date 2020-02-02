@@ -133,8 +133,8 @@ class Item:
         # Adding basic analysis
         self.add_percentage_change()
 
-        # # Adding technical analysis to the price history
-        # self.add_rsi_analysis()
+        # Adding technical analysis to the price history
+        self.add_rsi_analysis()
     def full_price_history(self):
         """
         Fills in a price history with all data points from the first purchase
@@ -194,13 +194,54 @@ class Item:
 
         # Date does not exist
         return False
-    # def add_rsi_analysis(self):
-    #     """
-    #     Adds rsi technical analysis to all price history points
-    #     """
-    #     # Obtaining rsi for each respective applicable data point
-    #     for i in range(13, len(self.price_history) - 13)
-    #         self.price_history.rsi = calculate_rsi_for_price_history(self.price_history[i:i + 14])
+    def add_rsi_analysis(self):
+        """
+        Adds rsi technical analysis to all price history points
+        """
+        # Obtaining rsi for each respective applicable data point
+        for i in range(14, len(self.price_history)):
+            self.calculate_rsi_for_point(i)
+    def calculate_rsi_for_point(self, i):
+        """
+        Calculates the rsi for a point
+        Uses the standard formula for the calcualtion of RSI with 14 data
+        points 100 - (100 / (1 + average_gain / average_loss))
+        """
+        if i < 14:
+            raise ValueError("Insufficient data points")
+
+        # Obtaining previous 13 points
+        points = self.price_history[i - 14:i + 1]
+
+        # Obtaining average upward movement and average downward movement
+        average_upward_movement = 0
+        average_downward_movement = 0
+        previous_price = None
+        # Cycling through all points
+        for point in points:
+            # Passing points without a price
+            if point.price is None:
+                continue
+            # Passing if a previous price has not been found
+            if previous_price is None:
+                # Found a previous price
+                previous_price = point.price
+                continue
+
+            if previous_price < point.price:
+                # An increase in price
+                average_upward_movement += (point.price - previous_price) / 14
+            elif previous_price > point.price:
+                # A reduction in price
+                average_downward_movement += abs((previous_price - point.price) / 14)
+
+            # Obtaining new price
+            previous_price = point.price
+
+        # Obtaining RSI
+        if average_downward_movement == 0:
+            return 100
+        self.price_history[i].rsi = 100 - (100 / (1 + average_upward_movement / average_downward_movement))
     def show(self):
         """
         Returns the name, icon and length of price history in a formatted

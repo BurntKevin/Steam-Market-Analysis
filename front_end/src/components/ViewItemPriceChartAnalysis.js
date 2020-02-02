@@ -30,7 +30,13 @@ class ChartViewer extends React.Component {
     }, {
       "name": "Volume",
       "type": "number"
+    }, {
+      "name": "RSI",
+      "type": "number"
     }];
+
+    console.log(this.dataFetch)
+
     this.dataSource = {
       chart: {},
       yaxis: [
@@ -51,6 +57,13 @@ class ChartViewer extends React.Component {
             type: "column"
           },
           title: "Volume"
+        },
+        {
+          plot: {
+            value: "RSI",
+            type: "msline"
+          },
+            title: "RSI"
         }
       ]
     };
