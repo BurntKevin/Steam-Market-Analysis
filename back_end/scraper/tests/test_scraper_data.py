@@ -153,15 +153,63 @@ def test_item_add_price_history():
     shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
 
     # Obtaining a price history to insert
-    price_history_point_1 = PriceHistoryPoint(datetime(2017, 1, 26), 2.495, 1)
+    price_history_point_1 = PriceHistoryPoint(datetime(2017, 1, 26), 3, 1)
     shattered_web_case.add_price_history([price_history_point_1])
     assert shattered_web_case.price_history[0].same(price_history_point_1)
 
     # Replacing price history with a new history
-    price_history_point_2 = PriceHistoryPoint(datetime(2017, 1, 22), 2.495, 1)
+    price_history_point_2 = PriceHistoryPoint(datetime(2017, 1, 22), 3, 1)
     shattered_web_case.add_price_history([price_history_point_2])
     assert shattered_web_case.price_history[0].same(price_history_point_2)
     assert shattered_web_case.price_history[0].same(price_history_point_1) is False
+
+    # Adding price history which fills
+    shattered_web_case.add_price_history([price_history_point_2, price_history_point_1])
+    assert len(shattered_web_case.price_history) == 5
+
+    # # Testing add_percentage_change functionality
+    # price_history_point_3 = PriceHistoryPoint(datetime(2017, 1, 23), 1.5, 1)
+    # shattered_web_case.add_price_history([price_history_point_2, price_history_point_3])
+    # assert shattered_web_case.price_history[1].percentage_change == 0.5
+
+def test_item_fill_price_history():
+    """
+    Test item fill price history
+    """
+    # Testing dates
+    shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
+    price_history_point_1 = PriceHistoryPoint(datetime(2017, 1, 26), 3, 1)
+    price_history_point_2 = PriceHistoryPoint(datetime(2017, 1, 22), 3, 1)
+    shattered_web_case.add_price_history([price_history_point_2, price_history_point_1])
+    assert len(shattered_web_case.price_history) == 5
+
+def test_item_add_percentage_change():
+    """
+    Test item add percentage change
+    """
+    # Creating item
+    shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
+    price_history_point = PriceHistoryPoint(datetime(2017, 1, 22), 3, 1)
+
+    # Testing stagnant price
+    price_history_addition = PriceHistoryPoint(datetime(2017, 1, 23), 3, 1)
+    shattered_web_case.add_price_history([price_history_point, price_history_addition])
+    assert shattered_web_case.price_history[1].percentage_change == 0
+
+    # Testing increase price
+    price_history_addition = PriceHistoryPoint(datetime(2017, 1, 23), 6, 1)
+    shattered_web_case.add_price_history([price_history_point, price_history_addition])
+    assert shattered_web_case.price_history[1].percentage_change == 1
+
+    # Testing decrease price
+    price_history_addition = PriceHistoryPoint(datetime(2017, 1, 23), 1.5, 1)
+    shattered_web_case.add_price_history([price_history_point, price_history_addition])
+    assert shattered_web_case.price_history[1].percentage_change == 0.5
+
+    # Testing no price
+    price_history_addition = PriceHistoryPoint(datetime(2017, 1, 23), None, 0)
+    shattered_web_case.add_price_history([price_history_point, price_history_addition])
+    assert shattered_web_case.price_history[1].percentage_change == None
 
 def test_item_show():
     """

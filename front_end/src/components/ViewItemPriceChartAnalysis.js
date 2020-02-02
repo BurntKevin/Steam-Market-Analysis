@@ -20,8 +20,6 @@ class ChartViewer extends React.Component {
         },
       })
 
-      console.log(this.dataFetch)
-
     this.schemaFetch = [{
       "name": "Time",
       "type": "date",

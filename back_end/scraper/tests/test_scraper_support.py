@@ -68,3 +68,16 @@ def test_get_game_name_from_id():
 
     # Testing non-existent game
     assert get_game_name_from_id(-5) is None
+
+# def test_average_loss():
+#     """
+#     Test average_loss
+#     Test no loss, one loss, many loss
+#     """
+#     # Testing no loss
+#     assert average_loss([5, 7, 9, 12, 51]) == 0
+
+#     # Testing one loss
+#     assert average_loss([5, 4, 6, 7]) == 0.2
+
+#     assert average_loss([5, 4, 2, 1]) == 0.4

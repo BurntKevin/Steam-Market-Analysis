@@ -89,6 +89,6 @@ def get_items_price_history(game_id):
 
     # Getting price history for each item
     for item in game.items:
-        item.price_history = get_item_price_history_from_page(game_id, item.name)
+        item.add_price_history(get_item_price_history_from_page(game_id, item.name))
 
     return game
