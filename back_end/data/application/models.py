@@ -35,12 +35,12 @@ class PriceHistoryPoint(DB.Model):
     """
     # PriceHistoryPoint details
     date = DB.Column(DB.DateTime, primary_key=True)
-    price = DB.Column(DB.Float, nullable=False, primary_key=True)
+    price = DB.Column(DB.Float, nullable=True, primary_key=True)
     volume = DB.Column(DB.Integer, nullable=False, primary_key=True)
     rsi = DB.Column(DB.Float, nullable=True, primary_key=True)
     macd = DB.Column(DB.Float, nullable=True, primary_key=True)
     percentage_change = DB.Column(DB.Float, nullable=True, primary_key=True)
-    turnover = DB.Column(DB.Float, nullable=False, primary_key=True)
+    turnover = DB.Column(DB.Float, nullable=True, primary_key=True)
 
     # References
     item_name = DB.Column(DB.String(50), DB.ForeignKey("item.name"), nullable=False, primary_key=True)

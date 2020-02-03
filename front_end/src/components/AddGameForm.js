@@ -17,6 +17,7 @@ export const AddGameForm = () => {
         <Button
           onClick={async () => {
             const game = { gameId };
+            alert("Sending request to add game, allow about 3 seconds of processing per item");
             const response = await fetch("/add_game", {
               method: "POST",
               headers: {

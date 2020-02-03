@@ -7,7 +7,7 @@ from time import sleep # Controls amount of requests being sent to website
 from requests import get # Connect to website
 
 # Cookie to access login only information: price history
-COOKIE = {"steamLoginSecure": "76561198362858068%7C%7CDEA5F0380E19EA0017601852D4A9389EAA4AB285"}
+COOKIE = {"steamLoginSecure": "76561198362858068%7C%7CF4A50A618EA2B004ABAEFBEF17587EB816790409"}
 
 def get_page(url, try_number=0):
     """
@@ -48,12 +48,13 @@ def string_to_query_string(string):
     string = string.replace("|", "%7C")
     string = string.replace("(", "%28")
     string = string.replace(")", "%29")
+    string = string.replace("&", "%26")
 
     return string
 
 def get_game_name_from_id(game_id):
     """
-    Obtainins a game's name from it's game id
+    Obtains a game's name from it's game id
     """
     # Obtaining game names and game ids
     game_data = get_page("https://api.steampowered.com/ISteamApps/GetAppList/v2/")
@@ -61,31 +62,46 @@ def get_game_name_from_id(game_id):
 
     # Locating game with corresponding game_id
     for game in game_data:
-        if game["appid"] == game_id:
+        if str(game["appid"]) == str(game_id):
             # Game found
             return game["name"]
 
     # Game id does not exist
     return None
 
-# TODO: Release when doing technical analysis
-# def fill_price(price_history):
-#     # Obtaining all possible dates
-#     dates = []
-#     # If there is no price history, no need to find all dates
-#     if len(price_history) != 0:
-#         # Calculating points between dates
-#         start = price_history[0]["price_history_point_date"]
-#         end = datetime.datetime.today()
+def sort_objects_by_date(objects):
+    """
+    Sorts an object with a date variable in an ascending date order
+    """
+    if len(objects) > 1:
+        middle = len(objects) // 2 # Finding the middle of the list
+        left = objects[:middle] # Dividing the list elements
+        right = objects[middle:] # into 2 halves
 
-#         # Generating points
-#         while start <= end:
-#             dates.append(sc_pricehistorypoint(start, None, 0, None, None).deobject())
-#             start += datetime.timedelta(days=1)
+        # Partitioning the sorting
+        sort_objects_by_date(left) # Sorting the first half
+        sort_objects_by_date(right) # Sorting the second half
 
-#     # Sorting
-#     all_dates = dates + price_history
-#     all_dates = merge_sort_price_history(all_dates)
+        i = j = k = 0
+        # Copy data to temporary list left[] and right[]
+        while i < len(left) and j < len(right):
+            if left[i].date < right[j].date:
+                objects[k] = left[i]
+                i += 1
+            else:
+                objects[k] = right[j]
+                j += 1
+            k += 1
 
-#     # Returning data
-#     return all_dates
+        # Checking if any element was left
+        while i < len(left):
+            objects[k] = left[i]
+            i += 1
+            k += 1
+
+        while j < len(right):
+            objects[k] = right[j]
+            j += 1
+            k += 1
+
+    return objects

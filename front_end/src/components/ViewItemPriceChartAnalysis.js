@@ -20,8 +20,6 @@ class ChartViewer extends React.Component {
         },
       })
 
-      console.log(this.dataFetch)
-
     this.schemaFetch = [{
       "name": "Time",
       "type": "date",
@@ -32,7 +30,14 @@ class ChartViewer extends React.Component {
     }, {
       "name": "Volume",
       "type": "number"
+    }, {
+      "name": "RSI",
+      "type": "number"
+    }, {
+      "name": "MACD",
+      "type": "number"
     }];
+
     this.dataSource = {
       chart: {},
       yaxis: [
@@ -53,6 +58,20 @@ class ChartViewer extends React.Component {
             type: "column"
           },
           title: "Volume"
+        },
+        {
+          plot: {
+            value: "RSI",
+            type: "msline"
+          },
+            title: "RSI"
+        },
+        {
+          plot: {
+            value: "MACD",
+            type: "column"
+          },
+            title: "MACD"
         }
       ]
     };

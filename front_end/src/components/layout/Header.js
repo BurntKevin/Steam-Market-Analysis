@@ -1,6 +1,7 @@
 import React from "react";
 import { Menu, Item } from 'semantic-ui-react'
 import AddGameForm from '../AddGameForm';
+import AddItemForm from '../AddItemForm'
 import SearchGameForm from '../SearchGameForm';
 import SearchItemForm from '../SearchItemForm';
 
@@ -13,6 +14,10 @@ function Header() {
 
       <Menu.Item>
         <AddGameForm/>
+      </Menu.Item>
+
+      <Menu.Item>
+        <AddItemForm/>
       </Menu.Item>
 
       <Menu.Item position='right'>

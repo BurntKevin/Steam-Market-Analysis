@@ -1,11 +1,16 @@
 """
 Scraper data structure
-Game contains game id, items
-Item contains name, icon url, price_history
-Price history contains date, median price, volume
+Game contains game name, game id, items
+Item contains name, icon url, price history
+Price history contains date, median price, volume, rsi, macd, percentage change, turnover
 """
+
+# Standard library
+from datetime import timedelta
+from sys import setrecursionlimit
+
 # Scraper Library
-from back_end.scraper.application.scraper_support import get_game_name_from_id
+from back_end.scraper.application.scraper_support import get_game_name_from_id, sort_objects_by_date
 
 # Game class
 class Game:
@@ -19,7 +24,7 @@ class Game:
         """
         self.game_id = int(game_id)
         if game_name is None:
-            self.name = get_game_name_from_id(self.game_id)
+            self.name = get_game_name_from_id(game_id)
         else:
             self.name = game_name
         self.items = []
@@ -125,6 +130,166 @@ class Item:
         """
         # Clearing history
         self.price_history = price_history
+        self.full_price_history()
+
+        # Adding basic analysis
+        self.add_percentage_change()
+
+        # Adding technical analysis to the price history
+        self.add_rsi_analysis()
+        self.add_macd_analysis()
+    def full_price_history(self):
+        """
+        Fills in a price history with all data points from the first purchase
+        to the last purchase where each data point has a date and the rest are
+        None values
+        """
+        # Obtaining all possible dates
+        dates = []
+        # If there is no price history, no need to find all dates
+        if len(self.price_history) != 0:
+            # Calculating points between dates
+            start = self.price_history[0].date
+            end = self.price_history[len(self.price_history) - 1].date
+
+            # Generating points
+            while start <= end:
+                # Adding date if it does not currently exist
+                if self.date_exists(start) is False:
+                    dates.append(PriceHistoryPoint(start, None, 0))
+
+                start += timedelta(days=1)
+        self.price_history += dates
+        # Sorting price history
+        self.price_history = sort_objects_by_date(self.price_history)
+    def add_percentage_change(self):
+        """
+        Fills in the price history's percentage change
+        If there is no price for a day, the percentage change is None and the
+        percentage change is calculated from the last sale price
+        """
+        previous_price = None
+        # Adding percentage change for all applicable price history points
+        for point in self.price_history:
+            # Checking if it is a valid point - has a previous price and
+            # has a current price
+            if previous_price is not None and point.price is not None:
+                # Possible to change
+                price_change = point.price / previous_price
+                if price_change < 1:
+                    # Price went down
+                    point.percentage_change = 1 - price_change
+                else:
+                    # Price went up or stagnant
+                    point.percentage_change = price_change - 1
+
+            # Updating previous price if there was a price
+            if point.price is not None:
+                previous_price = point.price
+    def date_exists(self, date):
+        """
+        Checks if a date already exists in the price history
+        """
+        # Checking all points
+        for point in self.price_history:
+            if point.date == date:
+                return True
+
+        # Date does not exist
+        return False
+    def add_rsi_analysis(self):
+        """
+        Adds rsi technical analysis to all price history points
+        """
+        # Obtaining rsi for each respective applicable data point
+        for i in range(14, len(self.price_history)):
+            self.calculate_rsi_for_point(i)
+    def calculate_rsi_for_point(self, i):
+        """
+        Calculates the rsi for a point
+        Uses the standard formula for the calcualtion of RSI with 14 data
+        points 100 - (100 / (1 + average_gain / average_loss))
+        """
+        if i < 14:
+            raise ValueError("Insufficient data points")
+
+        # Obtaining previous 13 points
+        points = self.price_history[i - 14:i + 1]
+
+        # Obtaining average upward movement and average downward movement
+        average_upward_movement = 0
+        average_downward_movement = 0
+        previous_price = None
+        # Cycling through all points
+        for point in points:
+            # Passing points without a price
+            if point.price is None:
+                continue
+            # Passing if a previous price has not been found
+            if previous_price is None:
+                # Found a previous price
+                previous_price = point.price
+                continue
+
+            if previous_price < point.price:
+                # An increase in price
+                average_upward_movement += (point.price - previous_price) / 14
+            elif previous_price > point.price:
+                # A reduction in price
+                average_downward_movement += (previous_price - point.price) / 14
+
+            # Obtaining new price
+            previous_price = point.price
+
+        # Obtaining RSI
+        if average_downward_movement == 0 and average_upward_movement == 0:
+            # If there was no possible calculation movement
+            self.price_history[i].rsi = None
+        elif average_downward_movement == 0:
+            # If there was no downward movement
+            self.price_history[i].rsi = 100
+        else:
+            # If there was downward and upward movement
+            self.price_history[i].rsi = 100 - (100 / (1 + average_upward_movement / average_downward_movement))
+    def add_macd_analysis(self):
+        """
+        Calculates the macd of the item's price history
+        """
+        for i in range(26, len(self.price_history)):
+            self.calculate_macd_of_point(i)
+    def calculate_macd_of_point(self, i):
+        """
+        Calculates the macd of a point in the item's price history
+        macd calculation: 12_period_ema - 26_period_ema
+        """
+        setrecursionlimit(365 * 20)
+        if i >= 26:
+            self.price_history[i].macd = self.calculate_ema(i, 12) - self.calculate_ema(i, 26)
+        else:
+            self.price_history[i].macd = None
+    def calculate_ema(self, i, period, previous_ema=None):
+        """
+        Calculates the ema of a point given a period
+        ema calculation: (current_price - previous_ema) * (2 / (period + 1)) + previous_ema
+        """
+        # Ema cannot be calculated
+        if i < period:
+            return None
+
+        # No ema supplied, have to calculate all previous emas
+        if previous_ema is None:
+            # Obtaining previous ema
+            previous_ema = self.calculate_ema(i - 1, period)
+            if previous_ema is None:
+                # No more previous emas
+                previous_ema = 0
+
+        # Calculating current ema
+        if self.price_history[i].price is None:
+            # No current price
+            return previous_ema * (2 / (period + 1)) + previous_ema
+        # Applicable current price
+        return (self.price_history[i].price - previous_ema) * (2 / (period + 1)) + previous_ema
     def show(self):
         """
         Returns the name, icon and length of price history in a formatted
@@ -189,7 +354,12 @@ class PriceHistoryPoint:
         self.rsi = rsi
         self.macd = macd
         self.percentage_change = percentage_change
-        self.turnover = price * int(volume)
+        if volume != 0:
+            # Point has a price
+            self.turnover = price * int(volume)
+        else:
+            # Point does not have a price
+            self.turnover = None
     def show(self):
         """
         Returns the date, price and volume for printing

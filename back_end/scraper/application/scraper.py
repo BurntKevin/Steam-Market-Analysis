@@ -52,6 +52,7 @@ def get_items_basic_details(game_id):
         for item in get_items_basic_details_from_page(game_id, start_position):
             data.add_item(item)
 
+    # Returning
     return data
 
 def get_item_price_history_from_page(game_id, item):
@@ -89,6 +90,28 @@ def get_items_price_history(game_id):
 
     # Getting price history for each item
     for item in game.items:
-        item.price_history = get_item_price_history_from_page(game_id, item.name)
+        item.add_price_history(get_item_price_history_from_page(game_id, item.name))
 
     return game
+
+def get_item_details(item_name):
+    """
+    Gets an item's details
+    """
+    # Obtaining data
+    data = get_page(f"https://steamcommunity.com/market/search/render/?norender=1&query={item_name}")
+
+    new_data = []
+    for item in data["results"]:
+        # Creating game
+        game_addition = Game(item["asset_description"]["appid"])
+
+        # Obtaining item details
+        item_addition = Item(item["asset_description"]["market_hash_name"], item["asset_description"]["icon_url"])
+        item_addition.add_price_history(get_item_price_history_from_page(item["asset_description"]["appid"], item["asset_description"]["market_hash_name"]))
+        game_addition.add_item(item_addition)
+
+        new_data.append(game_addition)
+
+    # Returning
+    return new_data
