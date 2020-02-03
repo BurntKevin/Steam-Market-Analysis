@@ -9,6 +9,7 @@ from back_end.scraper.application.scraper_support import get_game_name_from_id, 
 
 # Standard library
 from datetime import datetime, timedelta
+from sys import setrecursionlimit
 
 # Game class
 class Game:
@@ -22,7 +23,7 @@ class Game:
         """
         self.game_id = int(game_id)
         if game_name is None:
-            self.name = get_game_name_from_id(self.game_id)
+            self.name = get_game_name_from_id(game_id)
         else:
             self.name = game_name
         self.items = []
@@ -135,6 +136,7 @@ class Item:
 
         # Adding technical analysis to the price history
         self.add_rsi_analysis()
+        self.add_macd_analysis()
     def full_price_history(self):
         """
         Fills in a price history with all data points from the first purchase
@@ -242,6 +244,43 @@ class Item:
         if average_downward_movement == 0:
             return 100
         self.price_history[i].rsi = 100 - (100 / (1 + average_upward_movement / average_downward_movement))
+    def add_macd_analysis(self):
+        """
+        Calculates the macd of the item's price history
+        """
+        for i in range(26, len(self.price_history)):
+            self.calculate_macd_of_point(i)
+    def calculate_macd_of_point(self, i):
+        """
+        Calculates the macd of a point in the item's price history
+        macd calculation: 12_period_ema - 26_period_ema
+        """
+        setrecursionlimit(365 * 20)
+        if i >= 26:
+            self.price_history[i].macd = self.calculate_ema(i, 12) - self.calculate_ema(i, 26)
+    def calculate_ema(self, i, period, previous_ema=None):
+        """
+        Calculates the ema of a point given a period
+        ema calculation: (current_price - previous_ema) * (2 / (period + 1)) + previous_ema
+        Assumes that previous_ema given is correct (same day calculation)
+        """
+        # Ema cannot be calculated
+        if i < period:
+            return None
+
+        # No ema supplied, have to calculate all previous emas
+        if previous_ema is None:
+            # Obtaining previous ema
+            previous_ema = self.calculate_ema(i - 1, period)
+            if previous_ema is None:
+                # No more previous emas
+                previous_ema = 0
+
+        # Calculating current ema
+        if self.price_history[i].price is None:
+            return previous_ema * (2 / (period + 1)) + previous_ema
+        else:
+            return (self.price_history[i].price - previous_ema) * (2 / (period + 1)) + previous_ema
     def show(self):
         """
         Returns the name, icon and length of price history in a formatted

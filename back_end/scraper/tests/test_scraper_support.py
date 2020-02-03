@@ -48,6 +48,7 @@ def test_string_to_query_string():
     assert string_to_query_string("|") == "%7C"
     assert string_to_query_string("(") == "%28"
     assert string_to_query_string(")") == "%29"
+    assert string_to_query_string("&") == "%26"
 
     # Items
     assert string_to_query_string("Shattered Web Case") == "Shattered%20Web%20Case"
@@ -55,6 +56,7 @@ def test_string_to_query_string():
     assert string_to_query_string("MAC-10 | Surfwood (Factory New)") == "MAC-10%20%7C%20Surfwood%20%28Factory%20New%29"
     assert string_to_query_string("Mann Co. Supply Crate Key") == "Mann%20Co.%20Supply%20Crate%20Key"
     assert string_to_query_string("FAMAS | Crypsis (Field-Tested)") == "FAMAS%20%7C%20Crypsis%20%28Field-Tested%29"
+    assert string_to_query_string("Pirate Vest & Shirt") == "Pirate%20Vest%20&%20Shirt"
 
 def test_get_game_name_from_id():
     """
@@ -68,16 +70,3 @@ def test_get_game_name_from_id():
 
     # Testing non-existent game
     assert get_game_name_from_id(-5) is None
-
-# def test_average_loss():
-#     """
-#     Test average_loss
-#     Test no loss, one loss, many loss
-#     """
-#     # Testing no loss
-#     assert average_loss([5, 7, 9, 12, 51]) == 0
-
-#     # Testing one loss
-#     assert average_loss([5, 4, 6, 7]) == 0.2
-
-#     assert average_loss([5, 4, 2, 1]) == 0.4

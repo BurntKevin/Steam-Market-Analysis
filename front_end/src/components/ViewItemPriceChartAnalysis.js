@@ -33,9 +33,10 @@ class ChartViewer extends React.Component {
     }, {
       "name": "RSI",
       "type": "number"
+    }, {
+      "name": "MACD",
+      "type": "number"
     }];
-
-    console.log(this.dataFetch)
 
     this.dataSource = {
       chart: {},
@@ -64,6 +65,13 @@ class ChartViewer extends React.Component {
             type: "msline"
           },
             title: "RSI"
+        },
+        {
+          plot: {
+            value: "MACD",
+            type: "column"
+          },
+            title: "MACD"
         }
       ]
     };

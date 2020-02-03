@@ -269,6 +269,135 @@ def test_item_calculate_rsi_for_point():
     shattered_web_case.calculate_rsi_for_point(14)
     assert shattered_web_case.price_history[14].rsi == 60.00000000000001
 
+def test_item_add_macd_analysis():
+    """
+    Test item add macd analysis
+    """
+    # Creating item history
+    shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
+    price_history = [
+        PriceHistoryPoint(datetime(2017, 1, 1), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 2), 4, 1),
+        PriceHistoryPoint(datetime(2017, 1, 3), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 4), 5, 1),
+        PriceHistoryPoint(datetime(2017, 1, 5), 2, 1),
+        PriceHistoryPoint(datetime(2017, 1, 6), 7, 1),
+        PriceHistoryPoint(datetime(2017, 1, 7), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 8), 4, 1),
+        PriceHistoryPoint(datetime(2017, 1, 9), 2, 1),
+        PriceHistoryPoint(datetime(2017, 1, 10), 8, 1),
+        PriceHistoryPoint(datetime(2017, 1, 11), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 12), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 13), 7, 1),
+        PriceHistoryPoint(datetime(2017, 1, 14), 5, 1),
+        PriceHistoryPoint(datetime(2017, 1, 15), 6, 1),
+        PriceHistoryPoint(datetime(2017, 1, 16), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 17), 14, 1),
+        PriceHistoryPoint(datetime(2017, 1, 18), 13, 1),
+        PriceHistoryPoint(datetime(2017, 1, 19), 12, 1),
+        PriceHistoryPoint(datetime(2017, 1, 20), 15, 1),
+        PriceHistoryPoint(datetime(2017, 1, 21), 13, 1),
+        PriceHistoryPoint(datetime(2017, 1, 22), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 23), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 24), 8, 1),
+        PriceHistoryPoint(datetime(2017, 1, 25), 12, 1),
+        PriceHistoryPoint(datetime(2017, 1, 26), 14, 1),
+        PriceHistoryPoint(datetime(2017, 1, 27), 18, 1),
+        PriceHistoryPoint(datetime(2017, 1, 28), 15, 1)
+    ]
+    shattered_web_case.price_history = price_history
+
+    # Testing
+    shattered_web_case.add_macd_analysis()
+    assert shattered_web_case.price_history[25].macd is None
+    assert shattered_web_case.price_history[26].macd == 9.958315673671807
+    assert shattered_web_case.price_history[27].macd == 9.516485532043287
+
+def test_item_calculate_macd_of_point():
+    """
+    Test item calculate macd of point
+    """
+    # Creating item history
+    shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
+    price_history = [
+        PriceHistoryPoint(datetime(2017, 1, 1), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 2), 4, 1),
+        PriceHistoryPoint(datetime(2017, 1, 3), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 4), 5, 1),
+        PriceHistoryPoint(datetime(2017, 1, 5), 2, 1),
+        PriceHistoryPoint(datetime(2017, 1, 6), 7, 1),
+        PriceHistoryPoint(datetime(2017, 1, 7), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 8), 4, 1),
+        PriceHistoryPoint(datetime(2017, 1, 9), 2, 1),
+        PriceHistoryPoint(datetime(2017, 1, 10), 8, 1),
+        PriceHistoryPoint(datetime(2017, 1, 11), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 12), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 13), 7, 1),
+        PriceHistoryPoint(datetime(2017, 1, 14), 5, 1),
+        PriceHistoryPoint(datetime(2017, 1, 15), 6, 1),
+        PriceHistoryPoint(datetime(2017, 1, 16), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 17), 14, 1),
+        PriceHistoryPoint(datetime(2017, 1, 18), 13, 1),
+        PriceHistoryPoint(datetime(2017, 1, 19), 12, 1),
+        PriceHistoryPoint(datetime(2017, 1, 20), 15, 1),
+        PriceHistoryPoint(datetime(2017, 1, 21), 13, 1),
+        PriceHistoryPoint(datetime(2017, 1, 22), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 23), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 24), 8, 1),
+        PriceHistoryPoint(datetime(2017, 1, 25), 12, 1),
+        PriceHistoryPoint(datetime(2017, 1, 26), 14, 1),
+        PriceHistoryPoint(datetime(2017, 1, 27), 18, 1),
+        PriceHistoryPoint(datetime(2017, 1, 28), 15, 1)
+    ]
+    shattered_web_case.price_history = price_history
+
+    shattered_web_case.calculate_macd_of_point(25)
+    assert shattered_web_case.price_history[25].macd is None
+    shattered_web_case.calculate_macd_of_point(26)
+    assert shattered_web_case.price_history[26].macd == 9.958315673671807
+    shattered_web_case.calculate_macd_of_point(27)
+    assert shattered_web_case.price_history[27].macd == 9.516485532043287
+
+def test_item_calculate_ema():
+    """
+    Test item calculate ema
+    """
+    # Creating item history
+    shattered_web_case = Item("Shattered Web Case", "-9a81dlWLwJ2UUGcVs_nsVtzdOEdtWwKGZZLQHTxDZ7I56KU0Zwwo4NUX4oFJZEHLbXU5A1PIYQNqhpOSV-fRPasw8rsUFJ5KBFZv668FFUznaCaJWVDvozlzdONwvKjYLiBk24IsZEl0uuYrNjw0A3n80JpZWzwIYWLMlhpLvhcskA")
+    price_history = [
+        PriceHistoryPoint(datetime(2017, 1, 1), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 2), 4, 1),
+        PriceHistoryPoint(datetime(2017, 1, 3), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 4), 5, 1),
+        PriceHistoryPoint(datetime(2017, 1, 5), 2, 1),
+        PriceHistoryPoint(datetime(2017, 1, 6), 7, 1),
+        PriceHistoryPoint(datetime(2017, 1, 7), 3, 1),
+        PriceHistoryPoint(datetime(2017, 1, 8), 4, 1),
+        PriceHistoryPoint(datetime(2017, 1, 9), 2, 1),
+        PriceHistoryPoint(datetime(2017, 1, 10), 8, 1),
+        PriceHistoryPoint(datetime(2017, 1, 11), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 12), 9, 1),
+        PriceHistoryPoint(datetime(2017, 1, 13), 7, 1),
+        PriceHistoryPoint(datetime(2017, 1, 14), 5, 1),
+        PriceHistoryPoint(datetime(2017, 1, 15), 10, 1)
+    ]
+    shattered_web_case.price_history = price_history
+
+    # Testing unsuccessful
+    assert shattered_web_case.calculate_ema(1, 20) is None
+    
+    # Testing successful - 1 ema
+    assert shattered_web_case.calculate_ema(0, 1) is None
+    assert shattered_web_case.calculate_ema(1, 1) == 4
+    assert shattered_web_case.calculate_ema(2, 1) == 3
+    assert shattered_web_case.calculate_ema(3, 1) == 5
+
+    # Testing successful - 3 ema
+    assert shattered_web_case.calculate_ema(2, 3) is None
+    assert shattered_web_case.calculate_ema(3, 3) == 2.5
+    assert shattered_web_case.calculate_ema(4, 3) == 2.25
+    assert shattered_web_case.calculate_ema(4, 3, 2.5) == 2.25
+
 def test_item_show():
     """
     Test item show

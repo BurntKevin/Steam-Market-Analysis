@@ -2,7 +2,7 @@
 Tests scraper functions
 """
 # Library to test
-from back_end.scraper.application.scraper import get_item_count, get_items_basic_details_from_page, get_items_basic_details, get_item_price_history_from_page, get_items_price_history
+from back_end.scraper.application.scraper import get_item_count, get_items_basic_details_from_page, get_items_basic_details, get_item_price_history_from_page, get_items_price_history, get_item_details
 from back_end.scraper.application.scraper_data import Item
 
 def test_get_item_count():
@@ -99,3 +99,20 @@ def test_get_items_price_history():
     assert minesweeper_vr.item_exist(one_dollar) is not False
     assert minesweeper_vr.item_exist(five_dollars) is not False
     assert len(minesweeper_vr.items[0].price_history) > 30 or len(minesweeper_vr.items[1].price_history) > 30
+
+def test_get_item_details():
+    """
+    Test get item details
+    Tested one item query and multiple item query
+    """
+    # Testing one item query
+    games = get_item_details("shattered web case")
+    assert len(games) == 1
+    assert games[0].items[0].name == "Shattered Web Case"
+    assert len(games[0].items[0].price_history) != 0
+
+    # Testing two item query
+    games = get_item_details("neva")
+    assert len(games) == 2
+    for game in games:
+        assert game.items[0].name == "994890-NeVa" or game.items[0].name == "994890-NeVa (Foil)"

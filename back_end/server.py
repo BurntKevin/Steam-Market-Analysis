@@ -8,7 +8,7 @@ from flask import Blueprint, request
 
 # Custom Libraries
 from back_end.__init__ import DB, create_app
-from back_end.scraper.application.scraper import get_items_price_history
+from back_end.scraper.application.scraper import get_items_price_history, get_item_details
 from back_end.data.application.database import upload_game_data, retrieve_all_game_basic_data, retrieve_game_items_basic_data, retrieve_price_history_data
 
 # Setting up server and database
@@ -29,6 +29,24 @@ def add_game():
 
     # Saving the game's details
     upload_game_data(DB, game)
+
+    return "Done", 201
+
+@MAIN.route("/add_item", methods=["POST"])
+def add_item():
+    """
+    Adds or updates item(s) to the latest information
+    All items which are found by the query will be added
+    """
+    # Obtaining request details
+    item_data = request.get_json()
+
+    # Getting game data to add
+    games = get_item_details(item_data["itemName"])
+
+    # Saving each item's details
+    for game in games:
+        upload_game_data(DB, game)
 
     return "Done", 201
 
@@ -88,7 +106,8 @@ def item_price_history_data_for_chart():
             price_history_point.date.strftime('%m/%d/%Y %H:%M:%S'),
             price_history_point.price,
             price_history_point.volume,
-            price_history_point.rsi
+            price_history_point.rsi,
+            price_history_point.macd,
         ])
 
     # Returning data

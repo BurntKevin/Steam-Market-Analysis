@@ -38,7 +38,7 @@ export const ViewItemPriceHistoryAnalysis = ({ item_name }) => {
                 <Table.Cell>{priceHistoryAnalysisPoint.price_history_point_price}</Table.Cell>
                 <Table.Cell>{(priceHistoryAnalysisPoint.price_history_point_percentage_change * 100).toFixed(2)}</Table.Cell>
                 <Table.Cell>{priceHistoryAnalysisPoint.price_history_point_volume}</Table.Cell>
-                <Table.Cell>{priceHistoryAnalysisPoint.price_history_point_turnover}</Table.Cell>
+                <Table.Cell>{priceHistoryAnalysisPoint.price_history_point_turnover.toFixed(2)}</Table.Cell>
               </Table.Row>
             )
           }

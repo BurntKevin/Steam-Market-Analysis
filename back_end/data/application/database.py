@@ -16,7 +16,7 @@ def upload_game_data(database, data):
     db_game.query.filter_by(game_id=data.game_id).delete()
 
     # Adding game
-    game_addition = db_game(game_name=data.name, game_id=data.game_id)
+    game_addition = db_game(game_id=data.game_id, game_name=data.name)
     database.session.add(game_addition)
 
     # Uploading a game's item and it's price
