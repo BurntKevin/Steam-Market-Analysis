@@ -4,10 +4,6 @@ Testing scraper_support functions
 # Standard library
 from time import sleep # Used as we need to become blocked by the website
 from requests import get # Used to get blocked by the website
-from datetime import datetime # Used for price history point
-
-# Scraper Library
-from back_end.scraper.application.scraper_data import PriceHistoryPoint
 
 # Library to be tested
 from back_end.scraper.application.scraper_support import get_page, string_to_query_string, get_game_name_from_id
@@ -56,7 +52,7 @@ def test_string_to_query_string():
     assert string_to_query_string("MAC-10 | Surfwood (Factory New)") == "MAC-10%20%7C%20Surfwood%20%28Factory%20New%29"
     assert string_to_query_string("Mann Co. Supply Crate Key") == "Mann%20Co.%20Supply%20Crate%20Key"
     assert string_to_query_string("FAMAS | Crypsis (Field-Tested)") == "FAMAS%20%7C%20Crypsis%20%28Field-Tested%29"
-    assert string_to_query_string("Pirate Vest & Shirt") == "Pirate%20Vest%20&%20Shirt"
+    assert string_to_query_string("Pirate Vest & Shirt") == "Pirate%20Vest%20%26%20Shirt"
 
 def test_get_game_name_from_id():
     """

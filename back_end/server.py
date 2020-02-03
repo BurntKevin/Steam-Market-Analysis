@@ -3,7 +3,6 @@ Server functions
 """
 
 # Standard Libraries
-from json import dumps
 from flask import Blueprint, request
 
 # Custom Libraries

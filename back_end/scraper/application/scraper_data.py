@@ -4,12 +4,13 @@ Game contains game name, game id, items
 Item contains name, icon url, price history
 Price history contains date, median price, volume, rsi, macd, percentage change, turnover
 """
-# Scraper Library
-from back_end.scraper.application.scraper_support import get_game_name_from_id, sort_objects_by_date
 
 # Standard library
-from datetime import datetime, timedelta
+from datetime import timedelta
 from sys import setrecursionlimit
+
+# Scraper Library
+from back_end.scraper.application.scraper_support import get_game_name_from_id, sort_objects_by_date
 
 # Game class
 class Game:
@@ -166,7 +167,7 @@ class Item:
         Fills in the price history's percentage change
         If there is no price for a day, the percentage change is None and the
         percentage change is calculated from the last sale price
-        """    
+        """
         previous_price = None
         # Adding percentage change for all applicable price history points
         for point in self.price_history:
@@ -235,15 +236,21 @@ class Item:
                 average_upward_movement += (point.price - previous_price) / 14
             elif previous_price > point.price:
                 # A reduction in price
-                average_downward_movement += abs((previous_price - point.price) / 14)
+                average_downward_movement += (previous_price - point.price) / 14
 
             # Obtaining new price
             previous_price = point.price
 
         # Obtaining RSI
-        if average_downward_movement == 0:
-            return 100
-        self.price_history[i].rsi = 100 - (100 / (1 + average_upward_movement / average_downward_movement))
+        if average_downward_movement == 0 and average_upward_movement == 0:
+            # If there was no possible calculation movement
+            self.price_history[i].rsi = None
+        elif average_downward_movement == 0:
+            # If there was no downward movement
+            self.price_history[i].rsi = 100
+        else:
+            # If there was downward and upward movement
+            self.price_history[i].rsi = 100 - (100 / (1 + average_upward_movement / average_downward_movement))
     def add_macd_analysis(self):
         """
         Calculates the macd of the item's price history
@@ -258,11 +265,12 @@ class Item:
         setrecursionlimit(365 * 20)
         if i >= 26:
             self.price_history[i].macd = self.calculate_ema(i, 12) - self.calculate_ema(i, 26)
+        else:
+            self.price_history[i].macd = None
     def calculate_ema(self, i, period, previous_ema=None):
         """
         Calculates the ema of a point given a period
         ema calculation: (current_price - previous_ema) * (2 / (period + 1)) + previous_ema
-        Assumes that previous_ema given is correct (same day calculation)
         """
         # Ema cannot be calculated
         if i < period:
@@ -278,9 +286,10 @@ class Item:
 
         # Calculating current ema
         if self.price_history[i].price is None:
+            # No current price
             return previous_ema * (2 / (period + 1)) + previous_ema
-        else:
-            return (self.price_history[i].price - previous_ema) * (2 / (period + 1)) + previous_ema
+        # Applicable current price
+        return (self.price_history[i].price - previous_ema) * (2 / (period + 1)) + previous_ema
     def show(self):
         """
         Returns the name, icon and length of price history in a formatted

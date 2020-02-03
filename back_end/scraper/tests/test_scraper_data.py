@@ -209,7 +209,7 @@ def test_item_add_percentage_change():
     # Testing no price
     price_history_addition = PriceHistoryPoint(datetime(2017, 1, 23), None, 0)
     shattered_web_case.add_price_history([price_history_point, price_history_addition])
-    assert shattered_web_case.price_history[1].percentage_change == None
+    assert shattered_web_case.price_history[1].percentage_change is None
 
 def test_item_add_rsi_analaysis():
     """
@@ -385,7 +385,7 @@ def test_item_calculate_ema():
 
     # Testing unsuccessful
     assert shattered_web_case.calculate_ema(1, 20) is None
-    
+
     # Testing successful - 1 ema
     assert shattered_web_case.calculate_ema(0, 1) is None
     assert shattered_web_case.calculate_ema(1, 1) == 4

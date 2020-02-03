@@ -33,3 +33,4 @@
 # Issues with Technical Analysis
 * Some items do not have a high turnover where they are rarely sold which causes issues in analysis methods
 * For example, RSI requires data points to be surrounding a particular point in order for a calculation to be resulted, however, some items will have them blank which results in partial RSI lines drawn for the chart
+* Some items do not have data points for all possibles dates of the item. Rather than ruining the scale of the chart where each point is inconsistently placed as days without volume are removed, we opted to show None in place of it

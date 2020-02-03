@@ -75,32 +75,32 @@ def sort_objects_by_date(objects):
     """
     if len(objects) > 1:
         middle = len(objects) // 2 # Finding the middle of the list
-        L = objects[:middle] # Dividing the list elements
-        R = objects[middle:] # into 2 halves
+        left = objects[:middle] # Dividing the list elements
+        right = objects[middle:] # into 2 halves
 
         # Partitioning the sorting
-        sort_objects_by_date(L) # Sorting the first half
-        sort_objects_by_date(R) # Sorting the second half
+        sort_objects_by_date(left) # Sorting the first half
+        sort_objects_by_date(right) # Sorting the second half
 
         i = j = k = 0
-        # Copy data to temporary list L[] and R[]
-        while i < len(L) and j < len(R):
-            if L[i].date < R[j].date:
-                objects[k] = L[i]
+        # Copy data to temporary list left[] and right[]
+        while i < len(left) and j < len(right):
+            if left[i].date < right[j].date:
+                objects[k] = left[i]
                 i += 1
-            else: 
-                objects[k] = R[j]
+            else:
+                objects[k] = right[j]
                 j += 1
             k += 1
 
         # Checking if any element was left
-        while i < len(L):
-            objects[k] = L[i]
+        while i < len(left):
+            objects[k] = left[i]
             i += 1
             k += 1
 
-        while j < len(R):
-            objects[k] = R[j]
+        while j < len(right):
+            objects[k] = right[j]
             j += 1
             k += 1
 
