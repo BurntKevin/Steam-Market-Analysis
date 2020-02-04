@@ -1,5 +1,5 @@
 import React from 'react';
-import Layout from "../components/layout/index";
+import Layout from "../components/layout/Index";
 
 import ViewItemPriceHistoryAnalysis from "../components/ViewItemPriceHistoryAnalysis"
 import ViewItemPriceChartAnalysis from "../components/ViewItemPriceChartAnalysis"
@@ -9,8 +9,8 @@ function ViewItemAnalysisPage({ match }) {
 
   return (
     <Layout
-      body1={<ViewItemPriceChartAnalysis item_name={item_name}/>}
-      body2={<ViewItemPriceHistoryAnalysis item_name={item_name}/>}
+      body={<ViewItemPriceChartAnalysis item_name={item_name}/>}
+      extraBody={<ViewItemPriceHistoryAnalysis item_name={item_name}/>}
     />
   );
 }

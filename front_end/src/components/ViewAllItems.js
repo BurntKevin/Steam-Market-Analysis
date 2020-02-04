@@ -15,7 +15,7 @@ export const ViewAllItems = ({ game_id }) => {
     .then(({ data }) => {
       setItems(data.items);
     })
-  }, []);
+  }, [game_id]);
 
   return (
     <Card.Group itemsPerRow={5}>

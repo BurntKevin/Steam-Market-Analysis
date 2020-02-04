@@ -1,5 +1,5 @@
 import React from 'react';
-import Layout from "../components/layout/index";
+import Layout from "../components/layout/Index";
 
 import ViewAllItems from "../components/ViewAllItems"
 
@@ -8,7 +8,7 @@ function ViewAllItemsPage({ match }) {
 
   return (
     <Layout
-      body1={<ViewAllItems game_id={game_id}/>}
+      body={<ViewAllItems game_id={game_id}/>}
     />
   );
 }
