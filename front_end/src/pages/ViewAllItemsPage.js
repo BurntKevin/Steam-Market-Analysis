@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 import Layout from "../components/layout/Index";
 
-import ViewAllItems from "../components/ViewAllItems"
+import ViewAllItems from "../components/ViewAllItems";
 
 function ViewAllItemsPage({ match }) {
   const { game_id } = match.params;

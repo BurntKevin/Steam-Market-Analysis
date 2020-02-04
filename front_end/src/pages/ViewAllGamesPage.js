@@ -1,7 +1,7 @@
-import React from 'react';
+import React from "react";
 import Layout from "../components/layout/Index";
 
-import ViewAllGames from "../components/ViewAllGames"
+import ViewAllGames from "../components/ViewAllGames";
 
 function ViewAllGamesPage() {
   return (

@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Table } from "semantic-ui-react";
-import axios from 'axios';
+import axios from "axios";
 
 export const ViewItemPriceHistoryAnalysis = ({ item_name }) => {
   const [priceHistoryAnalysis, setPriceHistoryAnalysis] = useState([]);
 
   useEffect(() => {
     axios
-    .get("/view_item_price_history", {
+    .get("https://analysis-back-end.herokuapp.com/view_item_price_history", {
       params: {
         item_name,
       },

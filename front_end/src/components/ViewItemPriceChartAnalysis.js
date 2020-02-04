@@ -2,7 +2,7 @@ import React from "react";
 import FusionCharts from "fusioncharts";
 import TimeSeries from "fusioncharts/fusioncharts.timeseries";
 import ReactFC from "react-fusioncharts/lib/ReactFC";
-import axios from 'axios';
+import axios from "axios";
 
 ReactFC.fcRoot(FusionCharts, TimeSeries);
 
@@ -14,7 +14,7 @@ class ChartViewer extends React.Component {
 
     this.dataFetch =
       axios
-      .get("/view_item_price_history_chart", {
+      .get("https://analysis-back-end.herokuapp.com/view_item_price_history_chart", {
         params: {
           item_name,
         },
