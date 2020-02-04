@@ -5,7 +5,7 @@ export const ViewAllGames = () => {
   const [games, setGames] = useState([]);
 
   useEffect(() => {
-    fetch("/view_games").then(response =>
+    fetch("https://analysis-back-end.herokuapp.com/view_games").then(response =>
       response.json().then(data => {
         setGames(data.games);
       })

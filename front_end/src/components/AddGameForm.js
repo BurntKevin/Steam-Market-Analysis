@@ -18,7 +18,7 @@ export const AddGameForm = () => {
           onClick={async () => {
             const game = { gameId };
             alert("Sending request to add game, allow about 3 seconds of processing per item");
-            const response = await fetch("/add_game", {
+            const response = await fetch("https://analysis-back-end.herokuapp.com/add_game", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"

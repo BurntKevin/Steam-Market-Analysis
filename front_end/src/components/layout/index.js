@@ -2,12 +2,11 @@ import React from 'react';
 import Header from './Header';
 import Body from './Body';
 
-function Layout({ body1, body2 }) {
+function Layout({ body, extraBody }) {
   return (
     <div style={{ display: 'inline' }}>
       <Header />
-      <Body>{body1}</Body>
-      <Body>{body2}</Body>
+      <Body>{body}{extraBody}</Body>
     </div>
   );
 }

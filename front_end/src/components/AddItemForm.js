@@ -17,8 +17,7 @@ export const AddItemForm = () => {
         <Button
           onClick={async () => {
             const item = { itemName };
-            alert("Sending request to add item, allow about 3 seconds of processing per item");
-            const response = await fetch("/add_item", {
+            const response = await fetch("http://localhost:5000/add_item", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"

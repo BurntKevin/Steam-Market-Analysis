@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Card, Image } from "semantic-ui-react";
-import axios from 'axios';
+import axios from "axios";
 
 export const ViewAllItems = ({ game_id }) => {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
     axios
-    .get("/view_game_items", {
+    .get("https://analysis-back-end.herokuapp.com/view_game_items", {
       params: {
         game_id,
       },
@@ -15,7 +15,7 @@ export const ViewAllItems = ({ game_id }) => {
     .then(({ data }) => {
       setItems(data.items);
     })
-  }, []);
+  }, [game_id]);
 
   return (
     <Card.Group itemsPerRow={5}>
