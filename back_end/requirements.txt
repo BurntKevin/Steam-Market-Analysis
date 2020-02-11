@@ -19,7 +19,7 @@ constantly==15.1.0
 coverage==4.5.4
 cryptography==2.7
 cycler==0.10.0
-Django==3.0.2
+Django==3.0.3
 export==0.1.2
 ez-setup==0.9
 Flask==1.1.1
