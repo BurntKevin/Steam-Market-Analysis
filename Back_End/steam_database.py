@@ -23,7 +23,7 @@ class SteamDatabase:
     """
     Connector to Steam Data Database
     """
-    def __init__(self):
+    def __init__(self, admin=True):
         """
         Sets up connections to the database along with checks
         """
@@ -31,8 +31,12 @@ class SteamDatabase:
         self.queued_items = []
 
         # Connection to database
-        self.database = connect(host="steamdata.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="steamdata_admin", password="egion=us-e4tsdggsdgast-f21#database:id=steam")
-        self.ping_database()
+        if admin:
+            # Requires low latency read and writes
+            self.database = connect(host="steamdata.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="steamdata_admin", password="egion=us-e4tsdggsdgast-f21#database:id=steam")
+        else:
+            # Only reading allowed
+            self.database = connect(host="steamdataread.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="postgres_ro", password="J%vYCPsbEVqd88wWJcM&FWuHb*26BjsLmXt*kgjNrN^Yv!n")
     def ping_database(self):
         """
         Inserts an entry to signal aliveness containing computer name, ip address and process id
@@ -72,6 +76,7 @@ class SteamDatabase:
             print_issue(f"Uploading {len(entries)} entries")
 
             try:
+                con = None
                 # Creating connection
                 con = self.database.cursor()
 
@@ -82,6 +87,10 @@ class SteamDatabase:
                 # Closing off sesssion
                 self.database.commit()
             except Exception as e:
+                # Rolling back failed transaction
+                if con:
+                    con.rollback()
+
                 # Informing of issue
                 send_email(f"Failed to commit {len(entries)} due to {e}")
 
@@ -262,3 +271,8 @@ class SteamDatabase:
         Used to handle items which have a single quote in their name
         """
         return name.replace("'", "''")
+    def get_cookie(self):
+        """
+        Used to obtain scraping cookie
+        """
+        return self.query_database("SELECT value FROM information WHERE name='cookie'")[0]

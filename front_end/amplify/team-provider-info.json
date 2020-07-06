@@ -1,0 +1,23 @@
+{
+    "front": {
+        "awscloudformation": {
+            "AuthRoleName": "amplify-frondscout-front-14045-authRole",
+            "UnauthRoleArn": "arn:aws:iam::791020986326:role/amplify-frondscout-front-14045-unauthRole",
+            "AuthRoleArn": "arn:aws:iam::791020986326:role/amplify-frondscout-front-14045-authRole",
+            "Region": "us-east-1",
+            "DeploymentBucketName": "amplify-frondscout-front-14045-deployment",
+            "UnauthRoleName": "amplify-frondscout-front-14045-unauthRole",
+            "StackName": "amplify-frondscout-front-14045",
+            "StackId": "arn:aws:cloudformation:us-east-1:791020986326:stack/amplify-frondscout-front-14045/bdb37080-be0c-11ea-a9a2-0af77bd56d08",
+            "AmplifyAppId": "dtkbuuk7ta3r9"
+        },
+        "categories": {
+            "hosting": {
+                "amplifyhosting": {
+                    "appId": "dtkbuuk7ta3r9",
+                    "type": "manual"
+                }
+            }
+        }
+    }
+}

@@ -25,6 +25,7 @@ class SteamScraper:
     def __init__(self):
         # Connection to database
         self.database = SteamDatabase()
+        self.database.ping_database()
 
         # Cookie for scraping
         try:
@@ -39,7 +40,7 @@ class SteamScraper:
         """
         try:
             # Attempting to get cookie
-            self.cookie = self.database.query_database("SELECT value FROM information WHERE name='cookie'")[0]
+            self.cookie = self.database.get_cookie()
             self.last_cookie_check = datetime.utcnow()
         except Exception as e:
             # Informing user
@@ -130,11 +131,6 @@ class SteamScraper:
 
             # Updating database that this worker is still working
             self.database.ping_database()
-    def clean_market_hash_name(self, name):
-        """
-        Used to handle items which have a single quote in their name
-        """
-        return name.replace("'", "''")
     def scan_for_new_items_all(self, app_id):
         """
         Scans for new items for a given game which are not yet in the database
@@ -265,14 +261,14 @@ class SteamScraper:
 
         # Obtaining price points already added - daily
         try:
-            hourly_prices = self.database.query_database(f"SELECT time from public.\"PriceHourly\" where market_hash_name='{self.clean_market_hash_name(market_hash_name)}'")
+            hourly_prices = self.database.query_database(f"SELECT time from public.\"PriceHourly\" where market_hash_name='{self.database.clean_market_hash_name(market_hash_name)}'")
         except Exception as e:
             log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tdatabase\t\tCould not get hourly prices\t{e}")
             raise Exception("Could not get hourly prices")
 
         # Obtaining price points already added - hourly
         try:
-            daily_prices = self.database.query_database(f"SELECT time from public.\"PriceDaily\" where market_hash_name='{self.clean_market_hash_name(market_hash_name)}'")
+            daily_prices = self.database.query_database(f"SELECT time from public.\"PriceDaily\" where market_hash_name='{self.database.clean_market_hash_name(market_hash_name)}'")
         except Exception as e:
             log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tdatabase\t\tCould not get daily prices\t{e}")
             raise Exception("Could not get daily prices")
@@ -305,7 +301,7 @@ class SteamScraper:
         """
         # Obtaining item_name_id
         try:
-            item_name_id = self.database.query_database(f"SELECT item_name_id FROM public.\"Item\" WHERE market_hash_name='{self.clean_market_hash_name(market_hash_name)}' AND app_id={app_id}")
+            item_name_id = self.database.query_database(f"SELECT item_name_id FROM public.\"Item\" WHERE market_hash_name='{self.database.clean_market_hash_name(market_hash_name)}' AND app_id={app_id}")
             item_name_id = item_name_id[0]
         except Exception as e:
             log_issue("steam_scraper_stack", f"scan_for_live_prices\tdatabase\t\tCould not get item_name_id\t{e}")
@@ -325,7 +321,7 @@ class SteamScraper:
 
         # Obtaining current bid and ask
         try:
-            if page["sell_order_summary"] == "There are no active buy orders for this item.":
+            if page["sell_order_summary"] == "There are no active listings for this item.":
                 # There is currently no one buying
                 buy_price = "NULL"
             else:
