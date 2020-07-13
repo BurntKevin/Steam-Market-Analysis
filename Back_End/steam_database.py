@@ -33,22 +33,24 @@ class SteamDatabase:
         # Connection to database
         if admin:
             # Requires low latency read and writes
-            self.database = connect(host="steamdata.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="steamdata_admin", password="egion=us-e4tsdggsdgast-f21#database:id=steam")
+            self.database = connect(host="steamdata.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="steamdata_admin", password="e?region=us-east-1#database:id=steamdata;is-cluster=false;tab=monitoring")
         else:
             # Only reading allowed
-            self.database = connect(host="steamdataread.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="postgres_ro", password="J%vYCPsbEVqd88wWJcM&FWuHb*26BjsLmXt*kgjNrN^Yv!n")
+            self.database = connect(host="steamdata.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="postgres_ro", password="J%vYCPsbEVqd88wWJcM&FWuHb*26BjsLmXt*kgjNrN^Yv!n")
     def ping_database(self):
         """
         Inserts an entry to signal aliveness containing computer name, ip address and process id
         """
         # Sending a notification about the status of the machine
         self.queue_database(f"INSERT INTO workers (name, ip, last_ping, process_id) VALUES ('{gethostname()}', '{gethostbyname(gethostname())}', '{datetime.utcnow()}'::timestamp, {getpid()})")
-        self.commit_checker()
     def shutdown(self):
         # Saving progress
         while self.queued_items:
             print_issue(f"Saving {self.queued_items}")
-            self.commit()
+            try:
+                self.commit()
+            except:
+                log_issue("shutdown\tdatabase\t\tCould not finalise shutdown commit")
 
         # Shutting down connection
         self.database.close()
@@ -70,36 +72,29 @@ class SteamDatabase:
             """
             for entry in entries:
                 log_issue("steam_scraper_data", f"{entry};", date=False)
+
         # Checking if there are items to commit
         if entries:
             # Informing user of progress
             print_issue(f"Uploading {len(entries)} entries")
 
             try:
-                con = None
-                # Creating connection
-                con = self.database.cursor()
+                with self.database.cursor() as con:
+                    # Submitting all entries
+                    for entry in entries:
+                        con.execute(entry)
 
-                # Submitting all entries
-                for entry in entries:
-                    con.execute(entry)
-
-                # Closing off sesssion
-                self.database.commit()
+                    # Closing off sesssion
+                    self.database.commit()
             except Exception as e:
-                # Rolling back failed transaction
-                if con:
-                    con.rollback()
-
                 # Informing of issue
                 send_email(f"Failed to commit {len(entries)} due to {e}")
 
                 # Entering all items into a file for later submission
                 save_to_file(entries)
-            finally:
-                # Closing connection if it obtained a connection
-                if con:
-                    con.close()
+
+                # Notifying of issue
+                raise Exception("Failed to update database")
 
             # Informing user of progress
             print_issue(f"Completed {len(entries)} entries")
@@ -120,8 +115,11 @@ class SteamDatabase:
         Commits every 100 items
         """
         # Checking if a commit is required
-        if len(self.queued_items) >= 100:
-            self.commit()
+        if len(self.queued_items) >= 1000:
+            try:
+                self.commit()
+            except:
+                raise Exception("Could not commit after successful check")
     def query_database(self, query):
         """
         Queries the database
@@ -131,12 +129,10 @@ class SteamDatabase:
             Queries the database
             """
             # Obtaining connection to database
-            if con is None:
-                con = self.database.cursor()
-
-            # Executing query
-            result = con.execute(query)
-            result = con.fetchall()
+            with self.database.cursor() as con:
+                # Executing query
+                result = con.execute(query)
+                result = con.fetchall()
 
             # Returning an array of one item if it is one column
             if len(result) != 0 and len(result[0]) == 1:
@@ -145,32 +141,14 @@ class SteamDatabase:
 
         try:
             # Trying to answer query
-            con = self.database.cursor()
-            result = execute_query(query, con)
-        except OperationalError as e:
-            # Reporting issue which occurred
-            send_email(f"Failed to run {query} on database due to {e}")
-
-            # Retrying in two minutes before giving up
-            sleep(120)
-
-            # Retrying
-            try:
-                # Obtaining connection if previously did not get
+            with self.database.cursor() as con:
                 result = execute_query(query, con)
-            except:
-                # Informing user of error
-                raise Exception(f"Could not run query")
         except Exception as e:
             # Reporting issue which occurred
             send_email(f"Failed to run {query} on database due to {e}")
 
             # Informing user of error
             raise Exception(f"Could not run query")
-        finally:
-            # Closing of session
-            if con:
-                con.close()
 
         return result
     def add_game(self, app_id, name, icon):
@@ -182,35 +160,30 @@ class SteamDatabase:
 
         # Adding associated tasks with game
         self.add_task_game(app_id)
-        self.commit_checker()
     def add_item(self, market_hash_name, name, app_id, icon, item_name_id):
         """
         Adds a database entry for an item
         """
         # Adding item
-        self.queue_database(f"INSERT INTO public.\"Item\" (market_hash_name, name, app_id, icon, item_name_id) VALUES ('{self.clean_market_hash_name(market_hash_name)}', {name}, {app_id}, {icon}, {item_name_id}")
+        self.queue_database(f"INSERT INTO public.\"Item\" (market_hash_name, name, app_id, icon, item_name_id) VALUES ('{self.clean_market_hash_name(market_hash_name)}', '{name}', {app_id}, {icon}, {item_name_id}")
 
         # Adding associated tasks to item
         self.add_task_item(market_hash_name, app_id)
-        self.commit_checker()
     def add_price_daily(self, market_hash_name, time, median_price, volume):
         """
         Adds an item to PriceDaily
         """
         self.queue_database(f"INSERT INTO public.\"PriceDaily\" (market_hash_name, time, median_price, volume) VALUES ('{self.clean_market_hash_name(market_hash_name)}', '{time}'::timestamp, {median_price}, {volume})")
-        self.commit_checker()
     def add_price_hourly(self, market_hash_name, time, median_price, volume):
         """
         Adds an item to PriceHourly
         """
         self.queue_database(f"INSERT INTO public.\"PriceHourly\" (market_hash_name, time, median_price, volume) VALUES ('{self.clean_market_hash_name(market_hash_name)}', '{time}'::timestamp, {median_price}, {volume})")
-        self.commit_checker()
     def add_price_live(self, market_hash_name, time, sell_price, buy_price, median_price, volume, sell_quantity, buy_quantity, total_sell_quantity, total_buy_quantity):
         """
         Adds an item to PriceLive
         """
         self.queue_database(f"INSERT INTO public.\"PriceLive\" (market_hash_name, time, sell_price, buy_price, median_price, volume, sell_quantity, buy_quantity, total_sell_quantity, total_buy_quantity) VALUES ('{self.clean_market_hash_name(market_hash_name)}', '{time}'::timestamp, {sell_price}, {buy_price}, {median_price}, {volume}, {sell_quantity}, {buy_quantity}, {total_sell_quantity}, {total_buy_quantity})")
-        self.commit_checker()
     def add_task_item(self, item, app_id, live_price=True, official_price=True):
         """
         Adds a new item from a game
@@ -219,13 +192,11 @@ class SteamDatabase:
             self.queue_database(f"INSERT INTO task (item, app_id, action, due_date, timeout_time) VALUES ('{self.clean_market_hash_name(item)}', {app_id}, 'Live Price', '{datetime.utcnow()}'::timestamp, NULL)")
         if official_price:
             self.queue_database(f"INSERT INTO task (item, app_id, action, due_date, timeout_time) VALUES ('{self.clean_market_hash_name(item)}', {app_id}, 'Official Price', '{datetime.utcnow()}'::timestamp, NULL)")
-        self.commit_checker()
     def add_task_game(self, app_id):
         """
         Adds a new game
         """
         self.queue_database(f"INSERT INTO task (item, app_id, action, due_date, timeout_time) VALUES ('Operation Phoenix Weapon Case', {app_id}, 'New Items', '{datetime.utcnow()}'::timestamp, NULL)")
-        self.commit_checker()
     def update_task(self, item, app_id, action, failed=False):
         """
         Updates a task
@@ -234,35 +205,21 @@ class SteamDatabase:
             self.queue_database(f"UPDATE task SET timeout_time=NULL WHERE item='{self.clean_market_hash_name(item)}' AND app_id={app_id} AND action='{action}'")
         else:
             if action == "Live Price":
-                # Requires fast updating, preferably on a daily scale
+                # Requires fast updating
                 self.queue_database(f"UPDATE task SET timeout_time=NULL, due_date='{datetime.utcnow() + relativedelta.relativedelta(days=0.5)}'::timestamp WHERE item='{self.clean_market_hash_name(item)}' AND app_id={app_id} AND action='{action}'")
             else:
                 # Do not require frequent updates
                 self.queue_database(f"UPDATE task SET timeout_time=NULL, due_date='{datetime.utcnow() + relativedelta.relativedelta(days=14)}'::timestamp WHERE item='{self.clean_market_hash_name(item)}' AND app_id={app_id} AND action='{action}'")
-        self.commit_checker()
     def obtain_tasks(self):
         """
         Gives tasks out - should not be done like this, does not guarantee no redundancy
         """
         # Obtaining tasks
-        tasks = self.query_database("SELECT item, app_id, action FROM task WHERE timeout_time IS NULL OR timeout_time <= timezone('utc', now()) ORDER BY least(timeout_time, due_date) ASC LIMIT 100")
-
-        # Setting tasks as currently being processed
-        for task in tasks.copy():
-            try:
-                if task[2] == "New Items":
-                    # Big update to scan for all potential new items
-                    self.queue_database(f"UPDATE task SET timeout_time='{datetime.utcnow() + relativedelta.relativedelta(days=3)}'::timestamp WHERE item='{self.clean_market_hash_name(task[0])}' AND app_id={task[1]} AND action='{task[2]}'")
-                elif task[2] == "Live Price":
-                    # Requires fast processing, one day per point
-                    self.queue_database(f"UPDATE task SET timeout_time='{datetime.utcnow() + relativedelta.relativedelta(days=0.25)}'::timestamp WHERE item='{self.clean_market_hash_name(task[0])}' AND app_id={task[1]} AND action='{task[2]}'")
-                else:
-                    self.queue_database(f"UPDATE task SET timeout_time='{datetime.utcnow() + relativedelta.relativedelta(days=1)}'::timestamp WHERE item='{self.clean_market_hash_name(task[0])}' AND app_id={task[1]} AND action='{task[2]}'")
-            except Exception as e:
-                # Failed to get item
-                log_issue("steam_scraper_stack", f"solve_tasks\tdatabase\ttask={task}\tCouldn't get task {e}")
-                tasks.remove(task)
-        self.commit()
+        try:
+            tasks = self.query_database("SELECT * FROM get_tasks()")
+            self.update_database(["COMMIT"])
+        except Exception as e:
+            log_issue("steam_database_stack", f"obtain_tasks\tdatabase\t\tCould not get_tasks() {e}")
 
         # Returning tasks
         return tasks

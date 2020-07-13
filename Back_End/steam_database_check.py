@@ -31,6 +31,9 @@ def check_for_tasks():
             # Add actions associated with item
             database.add_task_item(item[0], item[1], official_price=False)
 
+    # Finalising database
+    database.shutdown()
+
 if __name__ == "__main__":
     # Running validation of data checks
     check_for_tasks()

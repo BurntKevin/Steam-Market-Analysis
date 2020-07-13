@@ -100,7 +100,7 @@ class SteamScraper:
 
             # Solving the tasks
             for task in tasks:
-                # Notifying of progress
+                # Notifying user of progress
                 print(task)
 
                 try:
@@ -114,8 +114,17 @@ class SteamScraper:
                     else:
                         log_issue("steam_scraper_stack", f"solve_tasks\tunknown\ttask={task}\tUnknown item")
 
-                    # Setting the task as done
-                    self.database.update_task(task[0], task[1], task[2])
+                    # Successfully added new item
+                    try:
+                        self.database.update_task(task[0], task[1], task[2])
+                    except Exception as e:
+                        log_issue("steam_scraper_stack", f"solve_tasks\tdatabase\ttask={task}\tFailed to add completed task {e}")
+
+                    # Checking if a commit is required
+                    try:
+                        self.database.commit_checker()
+                    except Exception as e:
+                        log_issue("solve_tasks\tdatabase\t\tFailed to check for commits")
                 except Exception as e:
                     # Logging issue
                     log_issue("steam_scraper_stack", f"solve_tasks\tfunctions\ttask={task}\tFailed to complete task {e}")
@@ -125,9 +134,6 @@ class SteamScraper:
                         self.database.update_task(task[0], task[1], task[2], True)
                     except Exception as e:
                         log_issue("steam_scraper_stack", f"solve_tasks\tdatabase\ttask={task}\tFailed to let go of task {e}")
-
-            # Notifying of successful round
-            print_issue("Completed Round")
 
             # Updating database that this worker is still working
             self.database.ping_database()
@@ -256,7 +262,7 @@ class SteamScraper:
             history = literal_eval(soup[0][10:-2])
         except Exception as e:
             # Issue occurred, logging
-            log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tpage\tpage={page}\tCould not access elements\t{e}")
+            log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tpage\tpage={page}\tCould not access elements for historical prices\t{e}")
             raise Exception("Could not get price history")
 
         # Obtaining price points already added - daily
@@ -281,7 +287,7 @@ class SteamScraper:
             try:
                 point_date = datetime.strptime(point[0][:14], "%b %d %Y %H")
             except Exception as e:
-                log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tdatabase\tpoint={point}\tCould not access elements\t{e}")
+                log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tdatabase\tpoint={point}\tCould not access elements for time\t{e}")
                 continue
 
             # Checking if point belongs to hourly or daily
@@ -362,7 +368,7 @@ class SteamScraper:
 
             # Going through all orders
             for buy_order in page["sell_order_graph"]:
-
+    
                 # Adding quantity if the price meets condition, otherwise stop
                 if buy_order[0] <= buy_price / 0.9:
                     buy_quantity += buy_order[1]
@@ -374,14 +380,14 @@ class SteamScraper:
 
         # Obtaining total items being sold and desired to be bought
         try:
-            if page["sell_order_summary"] == "There are no active buy orders for this item.":
+            if page["sell_order_summary"] == "There are no active listings for this item.":
                 # No buying demand
                 total_buy_quantity = 0
             else:
                 # There are buyers
                 total_buy_quantity = findall(">[0-9]*<", page["sell_order_summary"])[0][1:-1]
         except Exception as e:
-            log_issue("steam_scraper_stack", f"scan_for_live_prices\tjson\tpage={page}\tCould not access json array - sell_order_graph\t{e}")
+            log_issue("steam_scraper_stack", f"scan_for_live_prices\tjson\tpage={page}\tCould not access json array - sell_order_summary\t{e}")
             raise Exception("Could not get total items sold")
         try:
             if page["buy_order_summary"] == "There are no active buy orders for this item.":
@@ -405,9 +411,8 @@ class SteamScraper:
 
         # Obtaining median price - can not be there if no volume
         try:
-            median_price = page["median_price"][1:]
+            median_price = page["median_price"][1:].replace(",", "")
         except Exception as e:
-            log_issue("steam_scraper_stack", f"scan_for_live_prices\tjson\tpage={page}\tCould not access json - median_price\t{e}")
             median_price = "NULL"
 
         # Obtaining volume - can not be there if no volume
@@ -415,7 +420,6 @@ class SteamScraper:
             # Obtaining volume and turning comma separated number into a number
             volume = page["volume"].replace(",", "")
         except Exception as e:
-            log_issue("steam_scraper_stack", f"scan_for_live_prices\tjson\tpage={page}\tCould not access json - volume\t{e}")
             volume = "NULL"
 
         try:

@@ -1,7 +1,7 @@
 import React from "react";
 import { Menu,  Container, Image } from "semantic-ui-react";
 
-function Layout({ body }) {
+function Layout({ body, extraBody }) {
   return (
     <Container fluid>
       <Menu stackable>
@@ -10,6 +10,9 @@ function Layout({ body }) {
 
       <Container fluid>
         {body}
+      </Container>
+      <Container fluid>
+        {extraBody}
       </Container>
     </Container>
   );

@@ -66,20 +66,36 @@ def market_overview():
     """
     database = SteamDatabase(False)
     results = database.query_database("""
-    SELECT daily_price_action.time as time, daily_price_action.volume as volume, daily_hour_price_action.high as high, daily_hour_price_action.low as low, daily_price_action.median_price as close
-    FROM (SELECT time::date as time, sum(volume) as volume, sum(median_price) as median_price
+        SELECT daily_price_action.time as time, daily_price_action.volume as volume, daily_hour_price_action.high as high, daily_hour_price_action.low as low, daily_price_action.median_price as close
+        FROM (SELECT time::date as time, sum(volume) as volume, sum(median_price) as median_price
+            FROM "PriceDaily"
+            GROUP BY time::date
+            ORDER BY time) as daily_price_action
+            LEFT JOIN
+            (SELECT time::date as time, max(median_price) as high, min(median_price) as low
+            FROM (SELECT time as time, sum(median_price) as median_price
+                FROM "PriceHourly"
+                GROUP BY time
+                ORDER BY time) as hourly_price_action
+            GROUP BY time::date
+            ORDER BY time::date) as daily_hour_price_action
+        ON daily_price_action.time=daily_hour_price_action.time
+    """)
+    database.shutdown()
+
+    return dumps(results, default=str)
+
+@application.route("/transaction_amount/")
+@cache.cached(timeout=3600)
+def transaction_amount():
+    """
+    Obtain's total volume price of the Steam Market
+    """
+    database = SteamDatabase(False)
+    results = database.query_database("""
+        SELECT time::date as time, sum(median_price * volume) as transaction_volume
         FROM "PriceDaily"
-        GROUP BY time::date
-        ORDER BY time) as daily_price_action
-        LEFT JOIN
-        (SELECT time::date as time, max(median_price) as high, min(median_price) as low
-        FROM (SELECT time as time, sum(median_price) as median_price
-            FROM "PriceHourly"
-            GROUP BY time
-            ORDER BY time) as hourly_price_action
-        GROUP BY time::date
-        ORDER BY time::date) as daily_hour_price_action
-    ON daily_price_action.time=daily_hour_price_action.time
+        GROUP BY time
     """)
     database.shutdown()
 

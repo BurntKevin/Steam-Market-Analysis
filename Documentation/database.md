@@ -14,3 +14,33 @@
 
 ## Workers
 * CREATE TABLE workers (name text NOT NULL, ip text NOT NULL, last_ping timestamp NOT NULL, process_id integer NOT NULL, PRIMARY KEY(name, ip, last_ping));
+* Getting work code
+CREATE OR REPLACE FUNCTION get_tasks()
+RETURNS TABLE (market_hash_name text, game_app_id integer, price_action text)
+AS $$
+DECLARE
+    _market_hash_name text;
+    _game_app_id integer;
+    _price_action text;
+BEGIN
+    FOR _market_hash_name, _game_app_id, _price_action IN SELECT item, app_id, action
+                                                          FROM task
+                                                          WHERE timeout_time IS NULL OR timeout_time <= timezone('utc', now())
+                                                          GROUP BY item, app_id, action
+                                                          ORDER BY min(due_date)
+                                                          LIMIT 50
+    LOOP
+        UPDATE task
+        SET timeout_time=(timezone('utc', now()) + INTERVAL '0.25 DAY')::timestamp
+        WHERE item=_market_hash_name AND app_id=_game_app_id AND action=_price_action;
+
+        market_hash_name := _market_hash_name;
+        game_app_id := _game_app_id;
+        price_action := _price_action;
+
+        RETURN NEXT;
+    END LOOP;
+    RETURN;
+END;
+$$ LANGUAGE plpgsql;
+
