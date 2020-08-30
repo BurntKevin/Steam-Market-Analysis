@@ -25,7 +25,8 @@ DECLARE
 BEGIN
     FOR _market_hash_name, _game_app_id, _price_action IN SELECT item, app_id, action
                                                           FROM task
-                                                          WHERE timeout_time IS NULL OR timeout_time <= timezone('utc', now())
+                                                          WHERE (timeout_time IS NULL OR timeout_time <= timezone('utc', now()))
+                                                          AND action != 'Live Price'
                                                           GROUP BY item, app_id, action
                                                           ORDER BY min(due_date)
                                                           LIMIT 50
@@ -43,4 +44,3 @@ BEGIN
     RETURN;
 END;
 $$ LANGUAGE plpgsql;
-

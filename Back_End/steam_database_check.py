@@ -1,7 +1,11 @@
 """
 Checks the validity of data in the database and also fixes issues with data integrity
 """
-# Personal
+# Time Management
+from datetime import datetime
+from dateutil import relativedelta
+
+# Database
 from steam_database import SteamDatabase
 
 def check_for_tasks():
@@ -34,6 +38,32 @@ def check_for_tasks():
     # Finalising database
     database.shutdown()
 
+def priority_of_items():
+    """
+    Checks the database for mistakes in priority and adjusts them accordingly
+    Finds items which have yet to have a price scan and marks them as urgent
+    """
+    # Creating database
+    database = SteamDatabase()
+
+    # Obtaining all items which do not have a price point
+    work = database.query_database("""
+        SELECT distinct market_hash_name, app_id
+        FROM "Item" where market_hash_name not in
+            (SELECT distinct market_hash_name FROM "PriceDaily"
+            INTERSECT select distinct market_hash_name from "PriceHourly")
+    """)
+
+    # Removing timeouts
+    for item in work:
+        database.queue_database(f"UPDATE task SET due_date='{datetime.utcnow() - relativedelta.relativedelta(days=999)}'::timestamp WHERE item='{database.clean_market_hash_name(item[0])}' AND app_id={item[1]} AND action='Official Price'")
+
+    # Closing session
+    database.shutdown()
+
 if __name__ == "__main__":
     # Running validation of data checks
     check_for_tasks()
+
+    # Checking if items have to be scanned
+    priority_of_items()

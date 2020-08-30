@@ -10,5 +10,7 @@ if __name__ == "__main__":
         FROM workers
         WHERE last_ping >= (timezone('utc', now()) - INTERVAL '0.1 DAY')::timestamp
     """)
+
+    # Printing information of workers
     for ping in pings:
         print(ping)

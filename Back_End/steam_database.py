@@ -33,30 +33,29 @@ class SteamDatabase:
         # Connection to database
         if admin:
             # Requires low latency read and writes
-            self.database = connect(host="steamdata.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="steamdata_admin", password="e?region=us-east-1#database:id=steamdata;is-cluster=false;tab=monitoring")
+            self.database = connect(host="steamdata.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="steamdata_admin", password="asgsdigyI9GU8SDHajkfhasuifasty&*ufJASFKASHRO")
         else:
             # Only reading allowed
             self.database = connect(host="steamdata.cpl2ejcsikco.us-east-1.rds.amazonaws.com", port="5432", database="postgres", user="postgres_ro", password="J%vYCPsbEVqd88wWJcM&FWuHb*26BjsLmXt*kgjNrN^Yv!n")
-    def ping_database(self):
+    def ping_database(self, message):
         """
         Inserts an entry to signal aliveness containing computer name, ip address and process id
         """
         # Sending a notification about the status of the machine
-        self.queue_database(f"INSERT INTO workers (name, ip, last_ping, process_id) VALUES ('{gethostname()}', '{gethostbyname(gethostname())}', '{datetime.utcnow()}'::timestamp, {getpid()})")
+        self.queue_database(f"INSERT INTO workers (name, ip, last_ping, process_id, message) VALUES ('{gethostname()}', '{gethostbyname(gethostname())}', '{datetime.utcnow()}'::timestamp, {getpid()}, '{message}')")
     def shutdown(self):
         # Saving progress
-        while self.queued_items:
-            print_issue(f"Saving {self.queued_items}")
-            try:
-                self.commit()
-            except:
-                log_issue("shutdown\tdatabase\t\tCould not finalise shutdown commit")
+        print_issue(f"Saving {len(self.queued_items)}")
+        try:
+            self.commit(True)
+        except:
+            log_issue("steam_scraper_stack", "shutdown\tdatabase\t\tCould not finalise shutdown commit")
 
         # Shutting down connection
         self.database.close()
 
         # Informing user
-        print_issue("Successfully shut down database connection, may need to wait for commit to finish")
+        print_issue("Successfully shut down database connection")
     def queue_database(self, entry):
         """
         Adds an item to the queue
@@ -100,7 +99,7 @@ class SteamDatabase:
             print_issue(f"Completed {len(entries)} entries")
         else:
             print_issue(f"No entries")
-    def commit(self):
+    def commit(self, force=False):
         """
         Forces a commits to the database
         """
@@ -108,14 +107,20 @@ class SteamDatabase:
         items, self.queued_items = self.queued_items, []
 
         # Comitting items
-        thread = Thread(target=self.update_database, args=(items, ))
-        thread.start()
+        try:
+            if force:
+                self.update_database(items)
+            else:
+                thread = Thread(target=self.update_database, args=(items, ))
+                thread.start()
+        except Exception as e:
+            send_email(f"Failed to commit {len(entries)} due to {e}")
     def commit_checker(self):
         """
         Commits every 100 items
         """
         # Checking if a commit is required
-        if len(self.queued_items) >= 1000:
+        if len(self.queued_items) >= 100:
             try:
                 self.commit()
             except:
@@ -156,7 +161,7 @@ class SteamDatabase:
         Adds a database entry for a game
         """
         # Submitting game
-        self.queue_database(f"INSERT INTO public.\"Game\" (app_id, name, icon) VALUES ({app_id}, {name}, {icon})")
+        self.queue_database(f"INSERT INTO public.\"Game\" (app_id, name, icon) VALUES ({app_id}, {name}, '{icon}')")
 
         # Adding associated tasks with game
         self.add_task_game(app_id)
@@ -165,7 +170,7 @@ class SteamDatabase:
         Adds a database entry for an item
         """
         # Adding item
-        self.queue_database(f"INSERT INTO public.\"Item\" (market_hash_name, name, app_id, icon, item_name_id) VALUES ('{self.clean_market_hash_name(market_hash_name)}', '{name}', {app_id}, {icon}, {item_name_id}")
+        self.queue_database(f"INSERT INTO public.\"Item\" (market_hash_name, name, app_id, icon, item_name_id) VALUES ('{self.clean_market_hash_name(market_hash_name)}', '{self.clean_market_hash_name(name)}', {app_id}, '{icon}', {item_name_id})")
 
         # Adding associated tasks to item
         self.add_task_item(market_hash_name, app_id)
@@ -186,12 +191,12 @@ class SteamDatabase:
         self.queue_database(f"INSERT INTO public.\"PriceLive\" (market_hash_name, time, sell_price, buy_price, median_price, volume, sell_quantity, buy_quantity, total_sell_quantity, total_buy_quantity) VALUES ('{self.clean_market_hash_name(market_hash_name)}', '{time}'::timestamp, {sell_price}, {buy_price}, {median_price}, {volume}, {sell_quantity}, {buy_quantity}, {total_sell_quantity}, {total_buy_quantity})")
     def add_task_item(self, item, app_id, live_price=True, official_price=True):
         """
-        Adds a new item from a game
+        Adds a new item from a game and places them on urgent
         """
         if live_price:
-            self.queue_database(f"INSERT INTO task (item, app_id, action, due_date, timeout_time) VALUES ('{self.clean_market_hash_name(item)}', {app_id}, 'Live Price', '{datetime.utcnow()}'::timestamp, NULL)")
+            self.queue_database(f"INSERT INTO task (item, app_id, action, due_date, timeout_time) VALUES ('{self.clean_market_hash_name(item)}', {app_id}, 'Live Price', '{datetime.utcnow() - relativedelta.relativedelta(days=999)}'::timestamp, NULL)")
         if official_price:
-            self.queue_database(f"INSERT INTO task (item, app_id, action, due_date, timeout_time) VALUES ('{self.clean_market_hash_name(item)}', {app_id}, 'Official Price', '{datetime.utcnow()}'::timestamp, NULL)")
+            self.queue_database(f"INSERT INTO task (item, app_id, action, due_date, timeout_time) VALUES ('{self.clean_market_hash_name(item)}', {app_id}, 'Official Price', '{datetime.utcnow() - relativedelta.relativedelta(days=1000)}'::timestamp, NULL)")
     def add_task_game(self, app_id):
         """
         Adds a new game

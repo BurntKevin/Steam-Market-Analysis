@@ -25,7 +25,7 @@ class SteamScraper:
     def __init__(self):
         # Connection to database
         self.database = SteamDatabase()
-        self.database.ping_database()
+        self.database.ping_database("Started scraper")
 
         # Cookie for scraping
         try:
@@ -54,15 +54,16 @@ class SteamScraper:
         # Logging internet activity
         log_issue("steam_scraper_activity", f"{url}\t", date=False, new_line=False)
 
-        if self.last_cookie_check + relativedelta.relativedelta(days=0.3) < datetime.utcnow():
-            try:
-                self.cookie = self.get_cookie()
-            except Exception as e:
-                log_issue("steam_scraper_stack", f"get_page\tdatabase\t\tCoudl not get cookie {e}")
-
+        tries = 0
         while True:
             # Delay by three seconds
             sleep(3)
+
+            if self.last_cookie_check + relativedelta.relativedelta(days=0.25) < datetime.utcnow():
+                try:
+                    self.cookie = self.get_cookie()
+                except Exception as e:
+                    log_issue("steam_scraper_stack", f"get_page\tdatabase\t\tCould not get cookie {e}")
 
             # Obtaining page - providing a cookie appears to show you are more trustworthy to Steam and hence, more leeway but it expires in a few days
             page = get(url, cookies={"steamLoginSecure": self.cookie})
@@ -86,6 +87,17 @@ class SteamScraper:
 
             # Notifying user of re-request
             log_issue("steam_scraper_activity", "!", date=False, new_line=False)
+
+            # Counting number of tries
+            tries += 1
+
+            # Notifying database that the process has been stuck - occurs every ~10 minutes of trying
+            if tries % 200 == 0:
+                self.database.ping_database("Blocked by Steam")
+
+                # Committing all work if the process has been temporarily blocked by Steam (~10 minutes of trying)
+                if tries == 200:
+                    self.database.commit()
     def solve_tasks(self):
         """
         Works through tasks
@@ -136,7 +148,7 @@ class SteamScraper:
                         log_issue("steam_scraper_stack", f"solve_tasks\tdatabase\ttask={task}\tFailed to let go of task {e}")
 
             # Updating database that this worker is still working
-            self.database.ping_database()
+            self.database.ping_database("Completed a round")
     def scan_for_new_items_all(self, app_id):
         """
         Scans for new items for a given game which are not yet in the database
@@ -258,8 +270,15 @@ class SteamScraper:
 
         # Filtering page to useful data
         try:
-            soup = findall(r"var line1=.*", page.text)
-            history = literal_eval(soup[0][10:-2])
+            # Checking if there are prices
+            soup = findall("There is no price history available for this item yet.", page.text)
+            if soup == ["There is no price history available for this item yet."]:
+                # There is no price history
+                history = []
+            else:
+                # There are prices
+                soup = findall(r"var line1=.*", page.text)
+                history = literal_eval(soup[0][10:-2])
         except Exception as e:
             # Issue occurred, logging
             log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tpage\tpage={page}\tCould not access elements for historical prices\t{e}")
@@ -267,14 +286,14 @@ class SteamScraper:
 
         # Obtaining price points already added - daily
         try:
-            hourly_prices = self.database.query_database(f"SELECT time from public.\"PriceHourly\" where market_hash_name='{self.database.clean_market_hash_name(market_hash_name)}'")
+            hourly_prices = set(self.database.query_database(f"SELECT time from public.\"PriceHourly\" where market_hash_name='{self.database.clean_market_hash_name(market_hash_name)}'"))
         except Exception as e:
             log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tdatabase\t\tCould not get hourly prices\t{e}")
             raise Exception("Could not get hourly prices")
 
         # Obtaining price points already added - hourly
         try:
-            daily_prices = self.database.query_database(f"SELECT time from public.\"PriceDaily\" where market_hash_name='{self.database.clean_market_hash_name(market_hash_name)}'")
+            daily_prices = set(self.database.query_database(f"SELECT time from public.\"PriceDaily\" where market_hash_name='{self.database.clean_market_hash_name(market_hash_name)}'"))
         except Exception as e:
             log_issue("steam_scraper_stack", f"scan_for_new_official_prices\tdatabase\t\tCould not get daily prices\t{e}")
             raise Exception("Could not get daily prices")

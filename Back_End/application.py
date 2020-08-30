@@ -17,7 +17,7 @@ from steam_database import SteamDatabase
 application = Flask(__name__)
 cors = CORS(application)
 application.config['CORS_HEADERS'] = 'Content-Type'
-cache = Cache(application, config={'CACHE_TYPE': 'redis', 'CACHE_REDIS_URL': 'redis://steamscout.xb4wpu.ng.0001.use1.cache.amazonaws.com:6379'})
+cache = Cache(application, config={'CACHE_TYPE': 'redis', 'CACHE_REDIS_URL': 'redis://steamscoutredis.xb4wpu.ng.0001.use1.cache.amazonaws.com:6379'})
 
 # @application.route('/all_games')
 # def all_game():
@@ -43,18 +43,18 @@ cache = Cache(application, config={'CACHE_TYPE': 'redis', 'CACHE_REDIS_URL': 're
 
 #     return dumps(results, default=str)
 
-@application.route("/")
+@application.route("/test")
 def test():
     """
-    Returns Hello World as a test to ensure API is still working
+    Returns Hello World as a test to ensure server is still working
     """
     return "Hello World"
 
-@application.route("/echo/<echo>")
+@application.route("/test_cache/<echo>")
 @cache.cached(timeout=10)
 def echo_back(echo):
     """
-    Returns Hello World as a test to ensure API is still working
+    Returns a string typed by the user as a test to ensure cache is working
     """
     return f"You Typed: {echo} {randint(3, 13300)}"
 
