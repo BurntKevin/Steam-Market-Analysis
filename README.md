@@ -1,13 +1,9 @@
-# Steam Market Analysis
-# Warning
-* A Steam cookie is used to access information which normal users are not allowed to obtain
-* This cookie generally expires within a day
-* Website is not actively maintained and hence, we are unable to obtain the price history for items which results in no further items being obtained
-
-## Step One
-* Scrape the required information from the Steam website obtaining all the details for a given game (game name, item name, item icon, item price history which consists of date, median price, volume)
-
-## Step Two
-* Display the information in a website format with games categorised, items categorised
-* Utilise a chart to display the price history along with technical analysis
-* Have a table of raw data points underneath the chart
+# Product Description
+|                    	| Minimum Viable Product                                                    	| Production                                                                                	|
+|--------------------	|---------------------------------------------------------------------------	|-------------------------------------------------------------------------------------------	|
+| Focus              	| Showcasing a basic working product                                        	| To solve issues related to data as there were sourcing issues (delay and inconsistencies) 	|
+| Data Aggregation   	| Requested on demand by the user                                           	| Obtained prior to usage<br>Better infrastructure to conduct batch processing              	|
+| Data Manipulation  	| Simple data manipulation (RSI, MACD, daily percentage change, turnover) 	| Displays macro information (cost to obtain every item and daily turnover of market) 	|
+| Data Visualisation 	| Tables and charts                                                    	| Charts                                                                               	|
+| Cloud              	| Heroku                                                                    	| Amazon Web Services                                                                       	|
+| User Interface     	| Games and items displayed to assist in selection of items                 	| Single page displaying all information                                                    	|
