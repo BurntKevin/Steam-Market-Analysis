@@ -101,5 +101,52 @@ def transaction_amount():
 
     return dumps(results, default=str)
 
+@application.route("/market_seasonality/")
+@cached.cached(timeout=3600)
+def market_seasonality():
+    """
+    Seasonality of the entire market calculated using the earliest date of a
+    month and the latest date of a month:
+    (end_price - start_price) / start_price
+    """
+    database = SteamDatabase(False)
+    results = database.query_database("""
+        SELECT start_month_prices.month, AVG(((end_month_prices.median_price - start_month_prices.median_price) / start_month_prices.median_price) * 100) as seasonal_percentage_move
+        FROM (SELECT daily_price_action.month, daily_price_action.year, daily_price_action.median_price
+            FROM (SELECT max(day) as day, month, year, market_hash_name
+                FROM
+                (SELECT date_part('day', time) as day, date_part('month', time) as month, date_part('year', time) as year, market_hash_name
+                FROM "PriceDaily") as split_data
+                GROUP BY month, year, market_hash_name) as end_month_data
+                JOIN
+                (SELECT date_part('day', time) as day, date_part('month', time) as month, date_part('year', time) as year, market_hash_name, median_price
+                FROM "PriceDaily") as daily_price_action
+                ON daily_price_action.market_hash_name = end_month_data.market_hash_name
+                AND daily_price_action.day = end_month_data.day
+                AND daily_price_action.month = end_month_data.month
+                AND daily_price_action.year = end_month_data.year
+            GROUP BY daily_price_action.month, daily_price_action.year, daily_price_action.median_price) as end_month_prices
+            JOIN
+            (SELECT daily_price_action.month, daily_price_action.year, daily_price_action.median_price
+            FROM (SELECT min(day) as day, month, year, market_hash_name
+                FROM
+                (SELECT date_part('day', time) as day, date_part('month', time) as month, date_part('year', time) as year, market_hash_name
+                FROM "PriceDaily") as split_data
+                GROUP BY month, year, market_hash_name) as start_month_data
+                JOIN
+                (SELECT date_part('day', time) as day, date_part('month', time) as month, date_part('year', time) as year, market_hash_name, median_price
+                FROM "PriceDaily") as daily_price_action
+                ON daily_price_action.market_hash_name = start_month_data.market_hash_name
+                AND daily_price_action.day = start_month_data.day
+                AND daily_price_action.month = start_month_data.month
+                AND daily_price_action.year = start_month_data.year
+            GROUP BY daily_price_action.month, daily_price_action.year, daily_price_action.median_price) as start_month_prices
+            ON start_month_prices.month = end_month_prices.month
+            AND start_month_prices.year = end_month_prices.year
+        GROUP BY start_month_prices.month
+    """)
+
+    return dumps(results, default=str)
+
 if __name__ == "__main__":
     application.run()
