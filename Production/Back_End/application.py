@@ -30,7 +30,7 @@ def all_game():
 @application.route('/all_items/<game>')
 def all_items_in_game(game):
     database = SteamDatabase(False)
-    results = database.query_database(f"SELECT * FROM \"Item\" WHERE name='{game}'"")
+    results = database.query_database(f"SELECT * FROM \"Item\" WHERE name='{game}'")
     database.shutdown()
 
     return dumps(results)
